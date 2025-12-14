@@ -1,891 +1,167 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>DIGIY LOC PRO — Chez Baptiste • Planning 14 jours</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DIGIY — Accès PRO</title>
   <style>
-    :root{
-      --bg:#020617;
-      --card:#030712;
-      --accent:#f97316;
-      --accent-soft:#fed7aa;
-      --green:#16a34a;
-      --green-soft:#bbf7d0;
-      --line:#1f2937;
-      --text:#f9fafb;
-      --muted:#9ca3af;
-      --danger:#f97373;
-      --warn:#facc15;
-    }
-
-    *{box-sizing:border-box;margin:0;padding:0;}
-
-    body{
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
-      background:
-        radial-gradient(circle at top,#1f2937,transparent 60%),
-        radial-gradient(circle at bottom,#0b1120,transparent 55%),
-        var(--bg);
-      color:var(--text);
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      padding:1.5rem 0.6rem 2rem;
-    }
-
-    .page{
-      width:100%;
-      max-width:1000px;
-      background:rgba(9,9,20,0.96);
-      border-radius:24px;
-      border:1px solid rgba(148,163,184,0.6);
-      box-shadow:0 20px 45px rgba(15,23,42,0.9);
-      padding:1.6rem 1.2rem 1.8rem;
-    }
-
-    @media (min-width:768px){
-      body{padding:2.5rem 1.2rem;}
-      .page{padding:2.1rem 1.6rem 2.1rem;}
-    }
-
-    h1{font-size:1.8rem;margin-bottom:0.3rem;}
-    h2{font-size:1.25rem;margin-bottom:0.5rem;}
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:0.4rem;
-      padding:0.3rem 0.7rem;
-      border-radius:999px;
-      font-size:0.8rem;
-      text-transform:uppercase;
-      letter-spacing:0.14em;
-      border:1px solid rgba(250,204,21,0.9);
-      background:rgba(251,191,36,0.1);
-      color:var(--accent-soft);
-      margin-bottom:0.6rem;
-    }
-
-    .header-top{
-      display:flex;
-      gap:1rem;
-      align-items:flex-start;
-      margin-bottom:1rem;
-      flex-wrap:wrap;
-    }
-
-    .logo{
-      width:58px;height:58px;border-radius:18px;
-      background:radial-gradient(circle at 30% 15%,#fef3c7,#22c55e);
-      display:flex;align-items:center;justify-content:center;
-      font-size:1.8rem;font-weight:900;color:#111827;
-      box-shadow:0 14px 30px rgba(34,197,94,0.8);
-      flex-shrink:0;
-    }
-
-    .subtitle{color:var(--muted);margin-top:0.2rem;line-height:1.5;}
-    .tagline{margin-top:0.35rem;color:var(--accent-soft);font-weight:600;}
-
-    .pill-row{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem;}
-    .pill{
-      padding:0.25rem 0.65rem;border-radius:999px;
-      border:1px solid rgba(148,163,184,0.7);
-      font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;
-      color:var(--muted);
-    }
-    .pill-strong{
-      border-color:rgba(34,197,94,1);
-      color:#bbf7d0;
-      background:rgba(22,163,74,0.24);
-    }
-
-    .topbar{
-      margin-top:0.8rem;
-      display:flex;
-      flex-wrap:wrap;
-      gap:0.5rem;
-      align-items:center;
-      justify-content:space-between;
-    }
-
-    .btn{
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,0.7);
-      background:rgba(15,23,42,0.9);
-      color:var(--text);
-      padding:0.45rem 0.95rem;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      gap:0.35rem;
-      text-decoration:none;
-      user-select:none;
-    }
-    .btn:hover{border-color:rgba(250,204,21,0.9);}
-    .btn-ghost{background:transparent;}
-    .btn-accent{
-      background:linear-gradient(135deg,#f97316,#ea580c);
-      border-color:#fdba74;
-      color:#111827;
-      font-weight:800;
-    }
-    .btn-danger{
-      border-color:rgba(248,113,113,0.9);
-      color:#fee2e2;
-    }
-
-    .pro-banner{
-      margin-top:0.7rem;
-      border-radius:16px;
-      padding:0.75rem 0.85rem;
-      border:1px solid rgba(148,163,184,0.35);
-      background:rgba(255,255,255,0.04);
-      color:var(--muted);
-      line-height:1.45;
-    }
-    .pro-banner strong{ color: var(--warn); }
-    .pro-banner .ok{ color: var(--green-soft); font-weight:800; }
-    .pro-banner .ko{ color: var(--danger); font-weight:800; }
-
-    .planning-header{
-      margin-top:1.1rem;
-      margin-bottom:0.6rem;
-      display:flex;
-      flex-direction:column;
-      gap:0.4rem;
-    }
-
-    .planning-title-main{font-weight:700;}
-    .planning-sub{color:var(--muted);}
-
-    .planning-nav{
-      margin-top:0.4rem;
-      display:flex;
-      flex-wrap:wrap;
-      gap:0.4rem;
-      align-items:center;
-      justify-content:space-between;
-    }
-
-    .nav-left,.nav-right{display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;}
-
-    .legend-row{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem;}
-    .legend-item{
-      display:inline-flex;align-items:center;gap:0.35rem;
-      padding:0.25rem 0.6rem;border-radius:999px;
-      border:1px solid rgba(55,65,81,0.9);
-      font-size:0.85rem;color:var(--muted);
-    }
-    .legend-color{width:14px;height:14px;border-radius:4px;}
-    .legend-libre{background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.7);}
-    .legend-resa{background:rgba(250,204,21,0.2);border:1px solid rgba(250,204,21,0.9);}
-    .legend-ota{background:rgba(248,113,113,0.3);border:1px solid rgba(248,113,113,0.9);}
-    .legend-ferme{background:rgba(55,65,81,0.8);border:1px solid rgba(55,65,81,1);}
-
-    .table-wrap{
-      margin-top:0.8rem;
-      overflow-x:auto;
-      border-radius:18px;
-      border:1px solid rgba(31,41,55,0.95);
-      background:linear-gradient(145deg,#020617,#02081a);
-    }
-
-    table{border-collapse:collapse;min-width:780px;}
-    th,td{border-bottom:1px solid rgba(31,41,55,0.9);padding:0.45rem 0.5rem;text-align:center;vertical-align:middle;}
-
-    thead th{
-      position:sticky;top:0;background:#020617;z-index:2;
-      font-size:0.9rem;font-weight:700;color:#e5e7eb;white-space:nowrap;
-    }
-    thead th:first-child{text-align:left;}
-
-    tbody td:first-child{
-      text-align:left;font-weight:700;position:sticky;left:0;
-      background:linear-gradient(90deg,#020617,#02081a);z-index:1;
-    }
-
-    .day-label{display:flex;flex-direction:column;gap:0.1rem;}
-    .day-label span:first-child{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
-    .day-label span:last-child{font-size:0.95rem;font-weight:700;}
-
-    .cell-status{border-radius:10px;padding:0.3rem 0.35rem;font-size:0.9rem;}
-    .cell-libre{background:rgba(22,163,74,0.18);color:#bbf7d0;border:1px solid rgba(22,163,74,0.7);}
-    .cell-resa-digiy{background:rgba(250,204,21,0.25);color:#fef9c3;border:1px solid rgba(250,204,21,0.9);}
-    .cell-ota{background:rgba(248,113,113,0.3);color:#fee2e2;border:1px solid rgba(248,113,113,0.95);}
-    .cell-ferme{background:rgba(55,65,81,0.9);color:#e5e7eb;border:1px solid rgba(55,65,81,1);}
-
-    .grid-2{
-      display:grid;
-      grid-template-columns:1.4fr 1.2fr;
-      gap:1rem;
-      margin-top:1.4rem;
-    }
-    @media (max-width:768px){ .grid-2{grid-template-columns:1fr;} }
-
-    .card{
-      background:linear-gradient(145deg,#020617,#02081a);
-      border-radius:18px;
-      border:1px solid rgba(31,41,55,0.95);
-      padding:0.9rem 0.9rem 1rem;
-    }
-
-    label{display:block;margin-bottom:0.2rem;font-size:0.9rem;color:var(--muted);}
-    .required::after{content:"*";color:#facc15;margin-left:4px;}
-
-    .field-row{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.6rem;}
-    .field-col{flex:1 1 140px;min-width:0;}
-
-    input, select, textarea{
-      width:100%;
-      border-radius:10px;
-      border:1px solid rgba(55,65,81,0.9);
-      background:rgba(15,23,42,0.95);
-      color:var(--text);
-      padding:0.45rem 0.55rem;
-      outline:none;
-    }
-    textarea{min-height:70px;resize:vertical;}
-    input:focus, select:focus, textarea:focus{border-color:rgba(250,204,21,0.9);}
-
-    .hint{font-size:0.85rem;color:var(--muted);margin-top:0.15rem;}
-
-    .status-msg{margin-top:0.4rem;min-height:1.1rem;font-size:0.9rem;}
-    .status-error{color:var(--danger);}
-    .status-success{color:var(--green-soft);}
-    .status-warn{color:var(--warn);}
-
-    .resa-list-empty{color:var(--muted);}
-    .resa-item{padding:0.5rem 0;border-bottom:1px dashed rgba(55,65,81,0.9);font-size:0.95rem;}
-    .resa-item strong{color:var(--accent-soft);}
-    .resa-meta{color:var(--muted);font-size:0.9rem;margin-top:0.15rem;}
-
-    .footer{margin-top:1.2rem;font-size:0.9rem;color:var(--muted);text-align:center;}
-    .tiny{font-size:0.85rem;color:var(--muted);}
-
-    .lock{
-      opacity:0.55;
-      pointer-events:none;
-      filter:grayscale(0.35);
-    }
+    :root{--bg:#022c22;--bg2:#065f46;--card:#052e16;--accent:#facc15;--text:#e5e7eb;--muted:#9ca3af;--danger:#f97373;--ok:#22c55e;--line:rgba(148,163,184,.35);}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;font-family:system-ui,-apple-system,Segoe UI,Roboto;color:var(--text);
+      background:radial-gradient(circle at top,#16a34a22 0,transparent 55%),linear-gradient(135deg,var(--bg),var(--bg2));}
+    .wrap{width:100%;max-width:520px}
+    .card{background:linear-gradient(145deg,rgba(5,46,22,.97),rgba(6,95,70,.96));border:1px solid rgba(15,118,110,.45);border-radius:24px;padding:20px 18px;box-shadow:0 24px 60px rgba(0,0,0,.75)}
+    .top{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:10px}
+    .ico{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 0,#facc15 0,transparent 55%),radial-gradient(circle at bottom,#16a34a66 0,transparent 60%);
+      border:1px solid rgba(250,204,21,.7);box-shadow:0 0 25px rgba(250,204,21,.45);font-weight:900;color:#022c22}
+    h1{text-align:center;font-size:18px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+    p{text-align:center;color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.5}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .col{flex:1 1 160px}
+    label{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
+    input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(15,23,42,.55);color:var(--text);outline:none}
+    input:focus{border-color:rgba(250,204,21,.85)}
+    .btn{width:100%;margin-top:8px;padding:11px 14px;border-radius:999px;border:1px solid rgba(250,204,21,.65);background:rgba(0,0,0,.25);color:var(--text);cursor:pointer;font-weight:700;letter-spacing:.08em}
+    .btn.primary{background:linear-gradient(135deg,#facc15,#f97316);color:#022c22;border:none}
+    .split{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+    .box{border:1px dashed rgba(148,163,184,.35);border-radius:16px;padding:12px;background:rgba(255,255,255,.05)}
+    .msg{margin-top:10px;text-align:center;font-size:13px;min-height:18px}
+    .err{color:var(--danger)} .ok{color:var(--ok)}
+    .tiny{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5}
+    .hint{font-size:12px;color:#fef9c3}
   </style>
-</head>
-
-<body>
-  <main class="page">
-
-    <header class="header">
-      <div class="header-top">
-        <div class="logo">∞</div>
-        <div style="flex:1 1 420px;">
-          <div class="badge">DIGIY LOC — CHEZ BAPTISTE (PRO)</div>
-          <h1>Planning propriétaire • Appartement 2 chambres</h1>
-          <p class="subtitle">
-            0% commission, réservation directe avec le propriétaire.
-            <strong>Écran PRO</strong> : accès réservé au compte connecté.
-          </p>
-          <div class="tagline">
-            Planning 14 jours • Synchronisé Supabase DIGIY CORE (business : <strong>chez-baptiste</strong>).
-          </div>
-          <div class="pill-row">
-            <span class="pill pill-strong" id="pillOwner">—</span>
-            <span class="pill">Appartement complet</span>
-            <span class="pill">4 personnes max</span>
-            <span class="pill" id="pillStatus">statut —</span>
-          </div>
-
-          <div class="topbar">
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-              <a class="btn btn-ghost" id="btnBackHub" href="#">← Retour au HUB</a>
-              <button class="btn btn-ghost" id="btnReload">⟳ Recharger</button>
-            </div>
-            <button class="btn btn-danger" id="btnLogout">⏏ Déconnexion</button>
-          </div>
-
-          <div class="pro-banner" id="proBanner">
-            Vérification du compte… (<span class="tiny" id="debugLine">—</span>)
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <section class="planning-header">
-      <div class="planning-title-main" id="planningTitle">Planning 14 jours</div>
-      <div class="planning-sub" id="planningSub">Du … au …</div>
-
-      <div class="planning-nav">
-        <div class="nav-left">
-          <button class="btn btn-ghost" id="btnPrev">&larr; 14 jours</button>
-          <button class="btn btn-ghost" id="btnToday">Aujourd’hui</button>
-          <button class="btn btn-ghost" id="btnNext">14 jours &rarr;</button>
-        </div>
-
-        <div class="nav-right">
-          <div class="legend-row">
-            <div class="legend-item"><span class="legend-color legend-libre"></span> Libre (DIGIY)</div>
-            <div class="legend-item"><span class="legend-color legend-resa"></span> Réservé DIGIY</div>
-            <div class="legend-item"><span class="legend-color legend-ota"></span> Occupé Booking / OTA</div>
-            <div class="legend-item"><span class="legend-color legend-ferme"></span> Fermé</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="table-wrap">
-      <table>
-        <thead id="theadRow"></thead>
-        <tbody id="tbodyRows"></tbody>
-      </table>
-    </section>
-
-    <section class="grid-2">
-      <article class="card" id="cardForm">
-        <h2>Ajouter une réservation</h2>
-
-        <form id="resaForm">
-          <div class="field-row">
-            <div class="field-col">
-              <label class="required" for="guestName">Nom du client</label>
-              <input id="guestName" placeholder="Ex. Famille Ndiaye" required>
-            </div>
-            <div class="field-col">
-              <label for="phone">Téléphone / WhatsApp</label>
-              <input id="phone" placeholder="+221 77 …">
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field-col">
-              <label class="required" for="checkIn">Arrivée (check-in)</label>
-              <input id="checkIn" type="date" required>
-            </div>
-            <div class="field-col">
-              <label class="required" for="checkOut">Départ (check-out)</label>
-              <input id="checkOut" type="date" required>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field-col">
-              <label for="source">Source</label>
-              <select id="source">
-                <option value="digiy">DIGIY (direct)</option>
-                <option value="booking">Booking / OTA</option>
-                <option value="autre">Autre</option>
-              </select>
-              <div class="hint">Juste pour colorer le planning : DIGIY vs OTA.</div>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field-col">
-              <label for="comment">Notes</label>
-              <textarea id="comment" placeholder="Ex. Arrivée tardive, 4 personnes…"></textarea>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-accent" id="btnSave">🦅 Enregistrer dans Supabase</button>
-          <div class="status-msg" id="formStatus"></div>
-        </form>
-      </article>
-
-      <article class="card">
-        <h2>Réservations à venir</h2>
-        <div id="resaList"></div>
-      </article>
-    </section>
-
-    <footer class="footer">
-      DIGIY LOC PRO — Chez Baptiste • Planning connecté Supabase • 0% commission, paiement direct.
-    </footer>
-
-  </main>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // =======================
-    // CONFIG
-    // =======================
-    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top"><div class="ico">🦅</div></div>
+      <h1>ACCÈS PRO DIGIY</h1>
+      <p>
+        Première fois : <span class="hint">code OTP</span> (valable <b>10 minutes</b>).<br/>
+        Ensuite : <span class="hint">ton code PRO 4 chiffres</span> (par défaut les 4 derniers du tel).
+      </p>
 
-    // 🔁 Mets TES URLS
-    const HUB_URL = "https://beauville.github.io/mon-espace-digiy/";         // ← ton HUB
-    const INSCRIPTION_URL = "https://beauville.github.io/inscription-digiy/"; // ← login/inscription
-
-    // business / logement
-    const BUSINESS_CODE = "chez-baptiste";
-    const ROOM_LABEL = "Appartement complet (2 chambres)";
-    const ROOM_CODE = "apt-complet";
-
-    // =======================
-    // STATE
-    // =======================
-    let windowStart = new Date();
-    windowStart.setHours(0,0,0,0);
-
-    let authUser = null;
-    let profileSource = null; // "pros" | "pre_registrations"
-    let profileStatus = "unknown";
-    let canWrite = false;
-
-    // =======================
-    // DOM
-    // =======================
-    const theadRow = document.getElementById("theadRow");
-    const tbodyRows = document.getElementById("tbodyRows");
-    const planningTitle = document.getElementById("planningTitle");
-    const planningSub = document.getElementById("planningSub");
-
-    const form = document.getElementById("resaForm");
-    const formStatus = document.getElementById("formStatus");
-    const btnSave = document.getElementById("btnSave");
-    const resaList = document.getElementById("resaList");
-
-    const proBanner = document.getElementById("proBanner");
-    const debugLine = document.getElementById("debugLine");
-    const pillOwner = document.getElementById("pillOwner");
-    const pillStatus = document.getElementById("pillStatus");
-    const cardForm = document.getElementById("cardForm");
-
-    const btnBackHub = document.getElementById("btnBackHub");
-    const btnLogout = document.getElementById("btnLogout");
-    const btnReload = document.getElementById("btnReload");
-
-    // =======================
-    // HELPERS
-    // =======================
-    function formatDayLabel(d){
-      const jours = ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
-      const j = jours[d.getDay()];
-      const dd = String(d.getDate()).padStart(2,"0");
-      const mm = String(d.getMonth()+1).padStart(2,"0");
-      return { j, dd, mm };
-    }
-
-    function toISODate(d){ return d.toISOString().slice(0,10); }
-
-    function addDays(d, n){
-      const x = new Date(d);
-      x.setDate(x.getDate()+n);
-      return x;
-    }
-
-    function setFormDefaults(){
-      const todayISO = toISODate(new Date());
-      const tomorrowISO = toISODate(addDays(new Date(),1));
-      document.getElementById("checkIn").value = todayISO;
-      document.getElementById("checkOut").value = tomorrowISO;
-    }
-
-    function setStatus(msg, type){
-      formStatus.textContent = msg || "";
-      formStatus.className = "status-msg" + (type ? " status-" + type : "");
-    }
-
-    function lockWrites(locked, message){
-      if(locked){
-        cardForm.classList.add("lock");
-        btnSave.disabled = true;
-        setStatus(message || "Écriture verrouillée.", "warn");
-      } else {
-        cardForm.classList.remove("lock");
-        btnSave.disabled = false;
-        setStatus("", "");
-      }
-    }
-
-    // =======================
-    // AUTH + PROFILE CHECK
-    // =======================
-    async function requireAuth(){
-      const { data, error } = await client.auth.getUser();
-      if(error || !data || !data.user){
-        window.location.href = INSCRIPTION_URL;
-        return false;
-      }
-      authUser = data.user;
-      return true;
-    }
-
-    async function loadProfile(){
-      // 1) Cherche dans pros (si la fiche existe)
-      try{
-        const { data: proRow, error: proErr } = await client
-          .from("pros")
-          .select("id, full_name, status, payment_status, is_active, active_modules")
-          .eq("auth_user_id", authUser.id)
-          .maybeSingle();
-
-        if(!proErr && proRow){
-          profileSource = "pros";
-          profileStatus = (proRow.status || "pending").toLowerCase();
-
-          const pay = (proRow.payment_status || "pending").toLowerCase();
-          const enabled = (proRow.is_active === true);
-          canWrite = enabled && (profileStatus === "active") && (pay === "paid" || pay === "active");
-
-          pillOwner.textContent = (proRow.full_name || authUser.email || "PRO").toUpperCase();
-          pillStatus.textContent = "PRO • " + (canWrite ? "ACTIF" : profileStatus);
-
-          proBanner.innerHTML =
-            "✅ Profil trouvé dans <strong>pros</strong> (" + (canWrite ? "<span class='ok'>ACTIF</span>" : "<span class='ko'>NON ACTIF</span>") + ").<br>" +
-            (canWrite
-              ? "Tu peux <strong>ajouter</strong> des réservations."
-              : "Ton compte PRO existe mais n’est pas actif : <strong>écriture bloquée</strong>.");
-          return;
-        }
-      } catch(e){
-        // ignore, on tente pre_registrations
-      }
-
-      // 2) Sinon, cherche dans pre_registrations
-      try{
-        const { data: preRow, error: preErr } = await client
-          .from("pre_registrations")
-          .select("id, full_name, status, preferred_module, modules, phone, whatsapp, email, updated_at")
-          .eq("auth_user_id", authUser.id)
-          .maybeSingle();
-
-        if(preErr || !preRow){
-          profileSource = "none";
-          profileStatus = "unknown";
-          canWrite = false;
-
-          pillOwner.textContent = (authUser.email || "COMPTE").toUpperCase();
-          pillStatus.textContent = "STATUT INCONNU";
-
-          proBanner.innerHTML =
-            "⚠️ Compte connecté mais <strong>aucune fiche</strong> trouvée dans <strong>pros</strong> ni <strong>pre_registrations</strong>.<br>" +
-            "👉 Reviens au HUB et relance l’inscription.";
-          return;
-        }
-
-        profileSource = "pre_registrations";
-        profileStatus = (preRow.status || "pre_registered").toLowerCase();
-        canWrite = false; // lecture OK, écriture bloquée tant que pas PRO actif
-
-        pillOwner.textContent = (preRow.full_name || authUser.email || "PRÉINSCRIPTION").toUpperCase();
-        pillStatus.textContent = "PRÉINSCRIPTION • " + profileStatus;
-
-        proBanner.innerHTML =
-          "✅ Ton compte est reconnu (<strong>préinscription</strong>).<br>" +
-          "📌 Statut : <strong>" + profileStatus + "</strong> • Module : <strong>" + (preRow.preferred_module || "loc").toUpperCase() + "</strong><br>" +
-          "🔒 Prochaine étape : création du compte <strong>PRO</strong> (table pros) + activation abonnement.<br>" +
-          "💸 Paiement Wave : <strong>+221 77 134 28 89</strong> (écriture bloquée tant que non actif).";
-      } catch(e){
-        profileSource = "none";
-        profileStatus = "unknown";
-        canWrite = false;
-        proBanner.innerHTML = "⚠️ Erreur lecture profil. Vérifie Supabase.";
-      }
-    }
-
-    // =======================
-    // DATA LOAD + RENDER
-    // =======================
-    async function loadAndRender(){
-      const start = new Date(windowStart);
-      start.setHours(0,0,0,0);
-      const end = addDays(start,13);
-
-      const dd1 = String(start.getDate()).padStart(2,"0");
-      const mm1 = String(start.getMonth()+1).padStart(2,"0");
-      const dd2 = String(end.getDate()).padStart(2,"0");
-      const mm2 = String(end.getMonth()+1).padStart(2,"0");
-
-      planningTitle.textContent = "Planning 14 jours — " + ROOM_LABEL;
-      planningSub.textContent = "Du " + dd1 + "/" + mm1 + " au " + dd2 + "/" + mm2;
-
-      // Header tableau
-      theadRow.innerHTML = "";
-      const trHead = document.createElement("tr");
-
-      const thLogement = document.createElement("th");
-      thLogement.textContent = "Logement";
-      trHead.appendChild(thLogement);
-
-      for(let i=0;i<14;i++){
-        const d = addDays(start,i);
-        const th = document.createElement("th");
-        const info = formatDayLabel(d);
-        th.innerHTML = '<div class="day-label"><span>'+info.j.toUpperCase()+'</span><span>'+info.dd+'/'+info.mm+'</span></div>';
-        trHead.appendChild(th);
-      }
-      theadRow.appendChild(trHead);
-
-      // Charger résas qui CHEVAUCHENT la fenêtre :
-      // check_in <= end AND check_out >= start
-      const fromISO = toISODate(start);
-      const toISO = toISODate(end);
-
-      let reservations = [];
-      try{
-        const { data, error } = await client
-          .from("loc_reservations")
-          .select("*")
-          .eq("business_code", BUSINESS_CODE)
-          .lte("check_in", toISO)
-          .gte("check_out", fromISO);
-
-        if(error){
-          console.error("Erreur chargement réservations :", error.message);
-          setStatus("Erreur chargement réservations : " + error.message, "error");
-          reservations = [];
-        } else {
-          reservations = data || [];
-          if(canWrite) setStatus("", "");
-        }
-      } catch(err){
-        console.error(err);
-        setStatus("Erreur inattendue lors du chargement des réservations.", "error");
-        reservations = [];
-      }
-
-      // statusByDay
-      const statusByDay = {};
-      for(let i=0;i<14;i++){
-        const d = addDays(start,i);
-        statusByDay[toISODate(d)] = "free";
-      }
-
-      reservations.forEach(r => {
-        const checkIn = new Date(r.check_in);
-        const checkOut = new Date(r.check_out);
-        checkIn.setHours(0,0,0,0);
-        checkOut.setHours(0,0,0,0);
-
-        for(let i=0;i<14;i++){
-          const current = addDays(start,i);
-          current.setHours(0,0,0,0);
-          const key = toISODate(current);
-
-          if(current >= checkIn && current < checkOut){
-            const source = (r.source || "").toLowerCase();
-            if(source.startsWith("booking") || source.includes("ota")){
-              statusByDay[key] = "ota";
-            } else {
-              statusByDay[key] = "digiy";
-            }
-          }
-        }
-      });
-
-      // Corps tableau (une ligne)
-      tbodyRows.innerHTML = "";
-      const tr = document.createElement("tr");
-
-      const tdLabel = document.createElement("td");
-      tdLabel.innerHTML = `
-        <div><strong>${ROOM_LABEL}</strong></div>
-        <div style="color:var(--muted);font-size:0.9rem;">Capacité 4 pers • Code : ${ROOM_CODE}</div>
-      `;
-      tr.appendChild(tdLabel);
-
-      for(let i=0;i<14;i++){
-        const d = addDays(start,i);
-        const key = toISODate(d);
-        const status = statusByDay[key] || "free";
-
-        const td = document.createElement("td");
-        const div = document.createElement("div");
-        div.classList.add("cell-status");
-
-        if(status === "free"){
-          div.classList.add("cell-libre");
-          div.textContent = "Libre / Réservable";
-        } else if(status === "digiy"){
-          div.classList.add("cell-resa-digiy");
-          div.textContent = "Réservé DIGIY";
-        } else if(status === "ota"){
-          div.classList.add("cell-ota");
-          div.textContent = "Occupé Booking / OTA";
-        } else {
-          div.classList.add("cell-ferme");
-          div.textContent = "Fermé";
-        }
-
-        td.appendChild(div);
-        tr.appendChild(td);
-      }
-
-      tbodyRows.appendChild(tr);
-
-      await renderResaList();
-    }
-
-    async function renderResaList(){
-      resaList.innerHTML = "";
-      try{
-        const todayISO = toISODate(new Date());
-        const { data, error } = await client
-          .from("loc_reservations")
-          .select("*")
-          .eq("business_code", BUSINESS_CODE)
-          .gte("check_out", todayISO)
-          .order("check_in", { ascending:true });
-
-        if(error){
-          console.error(error);
-          resaList.innerHTML = '<div class="resa-list-empty">Erreur chargement : '+error.message+'</div>';
-          return;
-        }
-
-        if(!data || !data.length){
-          resaList.innerHTML = '<div class="resa-list-empty">Aucune réservation à venir.</div>';
-          return;
-        }
-
-        data.forEach(r=>{
-          const ci = new Date(r.check_in);
-          const co = new Date(r.check_out);
-          const dd1 = String(ci.getDate()).padStart(2,"0");
-          const mm1 = String(ci.getMonth()+1).padStart(2,"0");
-          const dd2 = String(co.getDate()).padStart(2,"0");
-          const mm2 = String(co.getMonth()+1).padStart(2,"0");
-
-          const source = (r.source || "digiy").toLowerCase();
-          let sourceLabel = "DIGIY";
-          if(source.startsWith("booking") || source.includes("ota")) sourceLabel = "Booking / OTA";
-          else if(source === "autre") sourceLabel = "Autre";
-
-          const div = document.createElement("div");
-          div.className = "resa-item";
-          div.innerHTML = `
-            <div><strong>${r.guest_name || "Client"}</strong> — du ${dd1}/${mm1} au ${dd2}/${mm2}</div>
-            <div class="resa-meta">
-              Source : ${sourceLabel}
-              ${r.phone ? " • Tel : "+r.phone : ""}
+      <div class="split">
+        <div class="box">
+          <div class="row">
+            <div class="col">
+              <label>Téléphone (format international)</label>
+              <input id="phone" placeholder="+221771342889" />
             </div>
-          `;
-          resaList.appendChild(div);
-        });
-      } catch(err){
-        console.error(err);
-        resaList.innerHTML = '<div class="resa-list-empty">Erreur inattendue.</div>';
-      }
+            <div class="col">
+              <label>OTP (4-6 chiffres)</label>
+              <input id="otp" placeholder="ex: 4821" inputmode="numeric" />
+            </div>
+          </div>
+          <button class="btn primary" id="btnSendOtp">📩 Envoyer OTP</button>
+          <button class="btn" id="btnVerifyOtp">✅ Valider OTP</button>
+          <div class="tiny">Si réseau lent : l’OTP reste valable <b>10 minutes</b>.</div>
+        </div>
+
+        <div class="box">
+          <div class="row">
+            <div class="col">
+              <label>Code PRO (4 chiffres)</label>
+              <input id="pin" placeholder="ex: 2889" inputmode="numeric" maxlength="4" />
+            </div>
+          </div>
+          <button class="btn primary" id="btnPin">🔓 Ouvrir avec mon code</button>
+          <div class="tiny">Astuce : par défaut = <b>4 derniers chiffres</b> du téléphone.</div>
+        </div>
+      </div>
+
+      <div class="msg" id="msg"></div>
+      <div class="tiny">
+        ✅ Une fois connecté, DIGIY retient l’appareil.<br/>
+        Tu ne dois pas retaper l’OTP tous les jours.
+      </div>
+    </div>
+  </div>
+
+<script>
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  const HUB_URL = "https://beauville.github.io/mon-espace-digiy/"; // ✅ ton HUB
+
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const $ = (id)=>document.getElementById(id);
+  const msg = (t, type="")=>{
+    $("msg").className = "msg " + (type==="err"?"err":type==="ok"?"ok":"");
+    $("msg").textContent = t || "";
+  };
+
+  function getDeviceId(){
+    let d = localStorage.getItem("digiy_device_id");
+    if(!d){
+      d = "dev_" + crypto.randomUUID();
+      localStorage.setItem("digiy_device_id", d);
     }
+    return d;
+  }
 
-    // =======================
-    // EVENTS
-    // =======================
-    document.getElementById("btnPrev").addEventListener("click", ()=>{
-      windowStart = addDays(windowStart, -14);
-      loadAndRender();
-    });
-    document.getElementById("btnNext").addEventListener("click", ()=>{
-      windowStart = addDays(windowStart, 14);
-      loadAndRender();
-    });
-    document.getElementById("btnToday").addEventListener("click", ()=>{
-      windowStart = new Date(); windowStart.setHours(0,0,0,0);
-      loadAndRender();
-    });
+  $("btnSendOtp").onclick = async ()=>{
+    msg("");
+    const phone = $("phone").value.trim();
+    if(!phone) return msg("Entre ton numéro au format +221...", "err");
 
-    btnBackHub.addEventListener("click", (e)=>{
-      e.preventDefault();
+    try{
+      // ⚠️ nécessite Supabase Auth Phone OTP configuré (SMS provider)
+      const { error } = await client.auth.signInWithOtp({ phone });
+      if(error) return msg("Erreur OTP : " + error.message, "err");
+      msg("OTP envoyé. Il est valable 10 minutes.", "ok");
+    } catch(e){
+      msg("Erreur inattendue OTP.", "err");
+      console.error(e);
+    }
+  };
+
+  $("btnVerifyOtp").onclick = async ()=>{
+    msg("");
+    const phone = $("phone").value.trim();
+    const token = $("otp").value.trim();
+    if(!phone || !token) return msg("Téléphone + OTP obligatoires.", "err");
+
+    try{
+      const { data, error } = await client.auth.verifyOtp({ phone, token, type: "sms" });
+      if(error) return msg("OTP invalide : " + error.message, "err");
+
+      msg("Connecté ✅ Redirection…", "ok");
       window.location.href = HUB_URL;
-    });
+    } catch(e){
+      msg("Erreur inattendue validation OTP.", "err");
+      console.error(e);
+    }
+  };
 
-    btnReload.addEventListener("click", ()=>{
-      window.location.reload();
-    });
+  $("btnPin").onclick = async ()=>{
+    msg("");
+    const pin = $("pin").value.trim();
+    if(!/^[0-9]{4}$/.test(pin)) return msg("Code PRO = 4 chiffres.", "err");
 
-    btnLogout.addEventListener("click", async ()=>{
-      try{ await client.auth.signOut(); } catch(e){}
-      window.location.href = INSCRIPTION_URL;
-    });
-
-    // SUBMIT
-    form.addEventListener("submit", async (e)=>{
-      e.preventDefault();
-
-      if(!canWrite){
-        setStatus("🔒 Compte non actif : tu peux lire le planning, mais pas ajouter de résas.", "warn");
-        return;
+    try{
+      // Il faut être déjà authentifié (session). Sinon → OTP une fois.
+      const { data: u } = await client.auth.getUser();
+      if(!u || !u.user){
+        return msg("Première fois : fais l’OTP, puis ensuite le code PRO.", "err");
       }
 
-      setStatus("", "");
-      btnSave.disabled = true;
+      const deviceId = getDeviceId();
+      const { data: ok, error } = await client.rpc("verify_my_pin", { p_pin: pin, p_device_id: deviceId });
+      if(error) return msg("Erreur vérification PIN : " + error.message, "err");
 
-      const guestName = document.getElementById("guestName").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const checkIn = document.getElementById("checkIn").value;
-      const checkOut = document.getElementById("checkOut").value;
-      const source = document.getElementById("source").value;
-      const comment = document.getElementById("comment").value.trim();
-
-      if(!guestName || !checkIn || !checkOut){
-        setStatus("Merci de remplir au minimum le nom, l'arrivée et le départ.", "error");
-        btnSave.disabled = false;
-        return;
+      if(ok){
+        msg("Accès autorisé ✅ Redirection…", "ok");
+        window.location.href = HUB_URL;
+      } else {
+        msg("Code incorrect. Si tu as un doute : refais OTP puis change ton code.", "err");
       }
-      if(checkOut <= checkIn){
-        setStatus("La date de départ doit être après la date d'arrivée.", "error");
-        btnSave.disabled = false;
-        return;
-      }
-
-      try{
-        const payload = {
-          business_code: BUSINESS_CODE,
-          room_label: ROOM_LABEL,
-          room_code: ROOM_CODE,
-          guest_name: guestName,
-          phone: phone || null,
-          source: source || "digiy",
-          check_in: checkIn,
-          check_out: checkOut,
-          status: "confirmed",
-          comment: comment || null
-        };
-
-        const { error } = await client.from("loc_reservations").insert([payload]);
-
-        if(error){
-          console.error("Erreur insert", error);
-          setStatus("Erreur enregistrement : " + error.message, "error");
-        } else {
-          setStatus("🎉 Réservation enregistrée. Planning mis à jour.", "success");
-          form.reset();
-          setFormDefaults();
-          await loadAndRender();
-        }
-      } catch(err){
-        console.error(err);
-        setStatus("Erreur inattendue. Réessaie.", "error");
-      } finally {
-        btnSave.disabled = false;
-      }
-    });
-
-    // =======================
-    // INIT
-    // =======================
-    document.addEventListener("DOMContentLoaded", async ()=>{
-      btnBackHub.href = HUB_URL;
-      setFormDefaults();
-
-      const ok = await requireAuth();
-      if(!ok) return;
-
-      debugLine.textContent = "auth=" + String(authUser.id).slice(0,8);
-
-      await loadProfile();
-
-      // verrou écriture si pas actif
-      lockWrites(!canWrite, "🔒 Écriture bloquée : active ton compte PRO (paiement Wave) pour ajouter des résas.");
-
-      // si tu veux autoriser écriture aux PRO même non 'active', change ici (mais je déconseille)
-      await loadAndRender();
-
-      debugLine.textContent =
-        "source=" + (profileSource || "none") +
-        " • status=" + (profileStatus || "unknown") +
-        " • auth=" + String(authUser.id).slice(0,8);
-    });
-  </script>
+    } catch(e){
+      msg("Erreur inattendue PIN.", "err");
+      console.error(e);
+    }
+  };
+</script>
 </body>
 </html>
