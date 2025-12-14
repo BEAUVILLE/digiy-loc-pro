@@ -164,7 +164,24 @@
       msg("");
       const pin = $("pin").value.trim();
       if(!/^[0-9]{4}$/.test(pin)) return msg("Code PRO = 4 chiffres.", "err");
+$("btnVerifyOtp").onclick = async ()=>{
+  msg("");
+  const phone = $("phone").value.trim();
+  const token = $("otp").value.trim();
 
+  const { error } = await client.auth.verifyOtp({
+    phone,
+    token,
+    type: "sms"
+  });
+
+  if(error) return msg("OTP invalide : " + error.message, "err");
+
+  msg("Connecté ✅ Redirection…", "ok");
+
+  // ✅ ICI
+  window.location.href = "https://beauville.github.io/mon-espace-digiy/";
+};
       try{
         const { data: u } = await client.auth.getUser();
         if(!u || !u.user){
