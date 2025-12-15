@@ -1,216 +1,598 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>DIGIY LOC PRO — Médias</title>
 
-  <!-- UI GLOBAL DIGIY -->
-  <link rel="stylesheet" href="ui.css" />
-
-  <!-- STYLE SPÉCIFIQUE MEDIAS (peut rester ici) -->
   <style>
-    .medias-page{
-      padding:16px;
-      max-width:520px;
-      margin:auto;
+    :root{
+      --bg:#022c22;
+      --bg2:#065f46;
+      --card:#052e16;
+      --accent:#facc15;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --danger:#ef4444;
+      --ok:#22c55e;
+      --shadow:0 12px 40px rgba(0,0,0,.35);
+      --border:rgba(250,204,21,0.18);
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 30% 0%, rgba(250,204,21,.10), transparent 60%),
+                  radial-gradient(900px 600px at 80% 20%, rgba(34,197,94,.12), transparent 55%),
+                  linear-gradient(180deg, var(--bg), #031a14 70%);
       color:var(--text);
+      min-height:100vh;
     }
 
-    .page-header h1{
-      font-size:1.4rem;
-      margin-bottom:4px;
+    /* HEADER SIMPLE (pas de délire, pas de bug) */
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(2,44,34,.86);
+      border-bottom: 1px solid var(--border);
+    }
+    .bar{
+      max-width:720px;
+      margin:0 auto;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .logo{
+      width:34px;height:34px;border-radius:10px;
+      display:grid;place-items:center;
+      background: rgba(250,204,21,.14);
+      border:1px solid rgba(250,204,21,.35);
+      color:var(--accent);
+      font-weight:900;
+    }
+    .brand small{display:block;color:var(--muted);font-weight:700;letter-spacing:0}
+    .right{
+      margin-left:auto;
+      display:flex; gap:10px; align-items:center;
+    }
+    .pill{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.25);
+      background: rgba(15,23,42,.35);
+      color:var(--text);
+      font-weight:800;
+      font-size:.86rem;
+      text-decoration:none;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill:hover{filter:brightness(1.08)}
+    .pill.accent{
+      border-color: rgba(250,204,21,.35);
+      background: rgba(250,204,21,.12);
+      color: var(--accent);
     }
 
-    .page-header p{
-      color:var(--muted);
-      font-size:0.95rem;
+    main{
+      max-width:720px;
+      margin:0 auto;
+      padding:18px 14px 28px;
+    }
+
+    .hero{
+      padding:16px;
+      border:1px solid var(--border);
+      border-radius:18px;
+      background: linear-gradient(135deg, rgba(6,95,70,.45), rgba(2,44,34,.65));
+      box-shadow: var(--shadow);
+    }
+    .hero h1{font-size:1.25rem;margin-bottom:6px}
+    .hero p{color:var(--muted);line-height:1.35}
+    .hero .note{
+      margin-top:10px;
+      font-size:.9rem;
+      color:#d1d5db;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.08);
+      padding:10px 12px;
+      border-radius:14px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+      margin-top:14px;
     }
 
     .card{
-      background:var(--card);
-      border-radius:14px;
+      background: rgba(5,46,22,.9);
+      border:1px solid var(--border);
+      border-radius:18px;
       padding:16px;
-      margin-top:16px;
-      border:1px solid rgba(250,204,21,0.2);
+      box-shadow: var(--shadow);
     }
-
-    .card.highlight{
-      background:linear-gradient(135deg,var(--bg),var(--bg2));
+    .card h2{
+      font-size:1.05rem;
+      margin-bottom:8px;
+      display:flex;align-items:center;gap:8px;
     }
-
     .hint{
-      font-size:0.9rem;
-      color:#e5e7eb;
-      margin:8px 0 12px;
-      line-height:1.4;
+      color:#d1d5db;
+      font-size:.92rem;
+      line-height:1.35;
+      margin-bottom:12px;
     }
 
+    /* BOUTONS */
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      flex:1;
+      min-width:180px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:none;
+      font-weight:900;
+      cursor:pointer;
+      font-size:.95rem;
+    }
+    .btn.primary{background:var(--accent); color:#022c22}
+    .btn.ghost{
+      background: transparent;
+      border:1px solid rgba(250,204,21,.28);
+      color: var(--text);
+    }
+    .btn.danger{
+      background: rgba(239,68,68,.14);
+      border:1px solid rgba(239,68,68,.35);
+      color:#fecaca;
+    }
+    .btn:hover{filter:brightness(1.06)}
+
+    /* GALERIE */
+    #photoInput{display:none}
     .gallery{
       display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
-      margin-bottom:12px;
+      grid-template-columns:repeat(3, 1fr);
+      gap:10px;
+      margin-top:12px;
     }
-
-    .photo{
+    .tile{
+      position:relative;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(250,204,21,.14);
+      background: rgba(2,44,34,.75);
       aspect-ratio:1/1;
-      border-radius:10px;
-      background:var(--bg);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:1.6rem;
-      color:var(--accent);
       cursor:pointer;
     }
+    .tile img{width:100%;height:100%;object-fit:cover;display:block}
+    .tile .empty{
+      height:100%; width:100%;
+      display:grid; place-items:center;
+      color: var(--accent);
+      font-size:1.8rem;
+      font-weight:1000;
+    }
+    .badge{
+      position:absolute; left:10px; top:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:.72rem;
+      font-weight:950;
+      color:#fff;
+      background: rgba(2,44,34,.75);
+      border:1px solid rgba(250,204,21,.35);
+      backdrop-filter: blur(6px);
+    }
+    .top-actions{
+      position:absolute; right:10px; top:10px;
+      display:flex; gap:8px;
+    }
+    .iconbtn{
+      width:36px;height:36px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(15,23,42,.60);
+      color:#fff;
+      font-weight:1000;
+      cursor:pointer;
+    }
+    .iconbtn:hover{filter:brightness(1.1)}
+    .tile-footer{
+      position:absolute; left:0; right:0; bottom:0;
+      padding:10px;
+      display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,.70));
+    }
+    .smallbtn{
+      border:none; cursor:pointer;
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:950;
+      font-size:.75rem;
+    }
+    .smallbtn.main{background: rgba(250,204,21,.95); color:#022c22}
+    .smallbtn.sec{
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;
+    }
 
-    .btn{
+    /* LOCALISATION */
+    .benefits{padding-left:18px;margin:6px 0 12px}
+    .benefits li{margin:6px 0; font-size:.92rem}
+    .field label{display:block;font-weight:950;margin-bottom:6px}
+    .field input{
       width:100%;
-      padding:12px;
-      border-radius:10px;
-      border:none;
-      font-weight:700;
-      margin-top:8px;
-      font-size:0.95rem;
-    }
-
-    .btn-primary{
-      background:var(--accent);
-      color:#022c22;
-    }
-
-    .btn-secondary{
-      background:#16a34a;
-      color:white;
-    }
-
-    .benefits{
-      padding-left:16px;
-      margin-bottom:12px;
-    }
-
-    .benefits li{
-      font-size:0.9rem;
-      margin-bottom:6px;
-    }
-
-    .map-preview{
-      height:160px;
-      border-radius:10px;
-      background:#0f172a;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:var(--muted);
-      font-size:0.9rem;
-    }
-
-    .btn-link{
-      background:none;
-      border:none;
-      color:var(--accent);
-      margin-top:8px;
-      font-weight:600;
-      cursor:pointer;
-    }
-
-    /* MENU SIMPLE */
-    .top-nav{
-      display:flex;
-      gap:12px;
-      padding:12px 16px;
-      background:var(--bg);
-      border-bottom:1px solid rgba(250,204,21,0.2);
-    }
-
-    .top-nav a{
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.28);
+      background: rgba(15,23,42,.45);
       color:var(--text);
-      text-decoration:none;
-      font-weight:600;
-      font-size:0.9rem;
+      outline:none;
+      font-weight:700;
+    }
+    .map-preview{
+      margin-top:10px;
+      min-height:130px;
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,.22);
+      background: rgba(15,23,42,.55);
+      display:flex; align-items:center; justify-content:center;
+      padding:12px;
+      text-align:center;
+      color:var(--muted);
+      line-height:1.35;
+    }
+    .footnote{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:.86rem;
+      line-height:1.35;
     }
 
-    .top-nav a.active{
-      color:var(--accent);
+    /* Responsive */
+    @media (min-width:560px){
+      .grid{grid-template-columns:1fr 1fr}
+      .card.full{grid-column:1 / -1}
+      .gallery{grid-template-columns:repeat(4, 1fr)}
     }
   </style>
 </head>
 
 <body>
 
-  <!-- MENU -->
-  <nav class="top-nav">
-    <a href="dashboard.html">🏠 Accueil</a>
-    <a href="planning.html">📅 Planning</a>
-    <a href="medias.html" class="active">🖼️ Médias</a>
-  </nav>
+<header>
+  <div class="bar">
+    <div class="brand">
+      <div class="logo">∞</div>
+      <div>
+        DIGIY LOC PRO
+        <small>Médias & Localisation</small>
+      </div>
+    </div>
 
-  <!-- PAGE MEDIAS -->
-  <main class="medias-page">
+    <div class="right">
+      <a class="pill accent" href="#medias">🖼️ Médias</a>
+      <a class="pill" href="#localisation">📍 Google Maps</a>
+    </div>
+  </div>
+</header>
 
-    <!-- HEADER -->
-    <header class="page-header">
-      <h1>🖼️ Médias & Localisation</h1>
-      <p>Montre ton vrai business. Aide les clients à te trouver.</p>
-    </header>
+<main>
 
-    <!-- GALERIE -->
-    <section class="card">
-      <h2>📸 Galerie photos</h2>
+  <section class="hero">
+    <h1>Interface PRO — simple, rapide, souveraine</h1>
+    <p>
+      Ici, tu ajoutes tes photos et tu donnes ton adresse pour que le client arrive au bon endroit.
+      <b>Zéro Supabase.</b> C’est du UI propre.
+    </p>
+    <div class="note">
+      ⚠️ Les photos sont gardées <b>dans ton navigateur</b> (LocalStorage).
+      Quand tu voudras du stockage réel, on branchera. Pour l’instant : <b>ça tourne.</b>
+    </div>
+  </section>
+
+  <div class="grid">
+
+    <!-- MEDIAS -->
+    <section class="card full" id="medias">
+      <h2>🖼️ Médias</h2>
       <p class="hint">
-        Plus de photos = plus de confiance.<br>
-        Façade, intérieur, chambres, produits, véhicule.
+        Mets du vrai : façade, intérieur, chambres, vue, piscine, équipements.
+        <b>Plus de photos = plus de confiance.</b>
       </p>
 
-      <div class="gallery">
-        <div class="photo">+</div>
-        <div class="photo">+</div>
-        <div class="photo">+</div>
+      <input id="photoInput" type="file" accept="image/*" multiple />
+
+      <div class="row">
+        <button class="btn primary" id="btnAdd">➕ Ajouter des photos</button>
+        <button class="btn ghost" id="btnExport">⬇️ Export (ZIP non) — Télécharger cover</button>
+        <button class="btn danger" id="btnClear">🧹 Tout effacer</button>
       </div>
 
-      <button class="btn btn-primary">➕ Ajouter des photos</button>
+      <div class="gallery" id="gallery"></div>
+
+      <p class="footnote">
+        ★ “Photo principale” = la première que le client doit voir (cover).
+        Tu peux aussi réordonner avec ← →.
+      </p>
     </section>
 
     <!-- GOOGLE MAPS -->
-    <section class="card highlight">
-      <h2>📍 Localisation (recommandé)</h2>
-
+    <section class="card" id="localisation">
+      <h2>📍 Google Maps (recommandé)</h2>
       <p class="hint">
-        Les plateformes prennent ta visibilité.<br>
-        Google Maps te rend ton adresse, ton téléphone et le GPS client.
+        Les OTA gardent souvent le client chez eux.  
+        Avec Google Maps, le pro reprend : <b>adresse + téléphone + galerie + GPS</b>.
       </p>
 
       <ul class="benefits">
-        <li>✅ Galerie photos illimitée</li>
+        <li>✅ Le client clique → itinéraire GPS direct</li>
+        <li>✅ Photos illimitées sur la fiche Google</li>
         <li>✅ Appels directs des clients</li>
-        <li>✅ Itinéraire GPS jusqu’à ton business</li>
       </ul>
 
-      <button class="btn btn-secondary">
-        📍 Me localiser sur Google Maps
-      </button>
+      <div class="field">
+        <label for="addr">Ton adresse / nom (ex: “Chez Baptiste, Saly Centre”)</label>
+        <input id="addr" type="text" placeholder="Nom + quartier + ville" />
+      </div>
 
-      <p class="hint">
-        Gratuit. Tu peux créer ou revendiquer ta fiche Google.
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="btnMaps">📍 Ouvrir dans Google Maps</button>
+        <button class="btn ghost" id="btnSaveLoc">💾 Sauver l’adresse</button>
+      </div>
+
+      <div class="map-preview" id="mapPreview">
+        Mets une adresse ci-dessus puis clique “Ouvrir dans Google Maps”.
+      </div>
+
+      <p class="footnote">
+        Conseil : sur Google Maps, “Revendiquer cet établissement” si une fiche existe déjà.
       </p>
     </section>
 
-    <!-- APERÇU CLIENT -->
+    <!-- APERÇU / RAPPEL -->
     <section class="card">
-      <h2>👀 Aperçu côté client</h2>
-
-      <div class="map-preview">
-        Aperçu Google Maps ici
-      </div>
-
-      <button class="btn-link">
-        🔗 Ouvrir dans Google Maps
-      </button>
+      <h2>👀 Rappel terrain</h2>
+      <p class="hint">
+        Objectif : que le client te trouve <b>sans appeler 10 fois</b> et qu’il soit rassuré par tes photos.
+      </p>
+      <p class="footnote">
+        Si tu veux, on fait après : “Aperçu fiche publique” + “Lien WhatsApp partage” (toujours sans Supabase).
+      </p>
     </section>
 
-  </main>
+  </div>
+
+</main>
+
+<script>
+  // =========================
+  //  UI-only : LocalStorage
+  // =========================
+  const LS_KEY = "digiy_loc_pro_medias_vFinal";
+  const LS_LOC = "digiy_loc_pro_loc_vFinal";
+
+  const galleryEl = document.getElementById("gallery");
+  const photoInput = document.getElementById("photoInput");
+  const btnAdd = document.getElementById("btnAdd");
+  const btnClear = document.getElementById("btnClear");
+  const btnExport = document.getElementById("btnExport");
+
+  const addrEl = document.getElementById("addr");
+  const btnMaps = document.getElementById("btnMaps");
+  const btnSaveLoc = document.getElementById("btnSaveLoc");
+  const mapPreview = document.getElementById("mapPreview");
+
+  function loadState(){
+    try { return JSON.parse(localStorage.getItem(LS_KEY)) || { photos: [], coverIndex: 0 }; }
+    catch { return { photos: [], coverIndex: 0 }; }
+  }
+  function saveState(s){ localStorage.setItem(LS_KEY, JSON.stringify(s)); }
+  function loadLoc(){ return localStorage.getItem(LS_LOC) || ""; }
+  function saveLoc(v){ localStorage.setItem(LS_LOC, v || ""); }
+
+  let state = loadState();
+
+  // -------------------------
+  // Galerie
+  // -------------------------
+  function render(){
+    galleryEl.innerHTML = "";
+
+    if(!state.photos.length){
+      // 6 placeholders
+      for(let i=0;i<6;i++){
+        const t=document.createElement("div");
+        t.className="tile";
+        t.innerHTML = `<div class="empty">+</div>`;
+        t.addEventListener("click", ()=>photoInput.click());
+        galleryEl.appendChild(t);
+      }
+      return;
+    }
+
+    state.photos.forEach((src, idx) => {
+      const isCover = idx === (state.coverIndex ?? 0);
+
+      const tile=document.createElement("div");
+      tile.className="tile";
+      tile.innerHTML = `
+        ${isCover ? `<div class="badge">Photo principale</div>` : ``}
+        <div class="top-actions">
+          <button class="iconbtn" data-del="${idx}" title="Supprimer">✕</button>
+        </div>
+        <img src="${src}" alt="Photo ${idx+1}">
+        <div class="tile-footer">
+          <button class="smallbtn main" data-cover="${idx}">★ Principal</button>
+          <button class="smallbtn sec" data-left="${idx}">←</button>
+          <button class="smallbtn sec" data-right="${idx}">→</button>
+        </div>
+      `;
+
+      galleryEl.appendChild(tile);
+    });
+
+    // Actions
+    galleryEl.querySelectorAll("[data-del]").forEach(b=>{
+      b.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        const i = Number(b.getAttribute("data-del"));
+        state.photos.splice(i,1);
+        if(state.coverIndex >= state.photos.length) state.coverIndex = 0;
+        saveState(state); render();
+      });
+    });
+
+    galleryEl.querySelectorAll("[data-cover]").forEach(b=>{
+      b.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        state.coverIndex = Number(b.getAttribute("data-cover"));
+        saveState(state); render();
+      });
+    });
+
+    galleryEl.querySelectorAll("[data-left]").forEach(b=>{
+      b.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        const i = Number(b.getAttribute("data-left"));
+        if(i<=0) return;
+        const tmp = state.photos[i-1];
+        state.photos[i-1] = state.photos[i];
+        state.photos[i] = tmp;
+
+        if(state.coverIndex === i) state.coverIndex = i-1;
+        else if(state.coverIndex === i-1) state.coverIndex = i;
+
+        saveState(state); render();
+      });
+    });
+
+    galleryEl.querySelectorAll("[data-right]").forEach(b=>{
+      b.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        const i = Number(b.getAttribute("data-right"));
+        if(i >= state.photos.length-1) return;
+        const tmp = state.photos[i+1];
+        state.photos[i+1] = state.photos[i];
+        state.photos[i] = tmp;
+
+        if(state.coverIndex === i) state.coverIndex = i+1;
+        else if(state.coverIndex === i+1) state.coverIndex = i;
+
+        saveState(state); render();
+      });
+    });
+  }
+
+  btnAdd.addEventListener("click", ()=>photoInput.click());
+
+  photoInput.addEventListener("change", async () => {
+    const files = Array.from(photoInput.files || []);
+    if(!files.length) return;
+
+    for(const f of files){
+      const dataUrl = await fileToDataURL(f);
+      state.photos.push(dataUrl);
+    }
+    if(state.coverIndex == null) state.coverIndex = 0;
+
+    saveState(state);
+    render();
+    photoInput.value="";
+  });
+
+  btnClear.addEventListener("click", ()=>{
+    if(!confirm("Tout effacer (local) ?")) return;
+    state = { photos: [], coverIndex: 0 };
+    saveState(state);
+    render();
+  });
+
+  // Export simple : télécharge la photo principale
+  btnExport.addEventListener("click", ()=>{
+    if(!state.photos.length){
+      alert("Ajoute au moins une photo d’abord.");
+      return;
+    }
+    const cover = state.photos[state.coverIndex ?? 0];
+    downloadDataUrl(cover, "digiy-cover.jpg");
+  });
+
+  function fileToDataURL(file){
+    return new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function downloadDataUrl(dataUrl, filename){
+    const a=document.createElement("a");
+    a.href=dataUrl;
+    a.download=filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  // -------------------------
+  // Google Maps (sans API)
+  // -------------------------
+  function mapsUrlFromAddress(addr){
+    const q = encodeURIComponent(addr.trim());
+    return `https://www.google.com/maps/search/?api=1&query=${q}`;
+  }
+
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
+  function refreshPreview(){
+    const addr = addrEl.value.trim();
+    if(!addr){
+      mapPreview.textContent = "Mets une adresse ci-dessus puis clique “Ouvrir dans Google Maps”.";
+      return;
+    }
+    mapPreview.innerHTML = `
+      <div>
+        <div style="font-weight:950;color:#e5e7eb;margin-bottom:6px">Aperçu</div>
+        <div style="color:#9ca3af;margin-bottom:10px">${escapeHtml(addr)}</div>
+        <div style="font-size:.9rem;color:#9ca3af">Le bouton ouvre Google Maps avec guidage.</div>
+      </div>
+    `;
+  }
+
+  btnMaps.addEventListener("click", ()=>{
+    const addr = addrEl.value.trim();
+    if(!addr){ alert("Mets une adresse d’abord."); return; }
+    window.open(mapsUrlFromAddress(addr), "_blank");
+  });
+
+  btnSaveLoc.addEventListener("click", ()=>{
+    saveLoc(addrEl.value.trim());
+    alert("Adresse sauvegardée (local).");
+  });
+
+  addrEl.addEventListener("input", refreshPreview);
+
+  // Init
+  addrEl.value = loadLoc();
+  refreshPreview();
+  render();
+</script>
 
 </body>
 </html>
