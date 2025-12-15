@@ -6,18 +6,12 @@
   <title>DIGIY LOC PRO — Accès</title>
 
   <style>
-    :root{
-      --bg:#022c22;--bg2:#065f46;--card:#052e16;
-      --accent:#facc15;--text:#e5e7eb;--muted:#9ca3af;
-      --danger:#f97373;--ok:#22c55e;--line:rgba(148,163,184,.35);
-    }
+    :root{--bg:#022c22;--bg2:#065f46;--accent:#facc15;--text:#e5e7eb;--muted:#9ca3af;--danger:#f97373;--ok:#22c55e;--line:rgba(148,163,184,.35);}
     *{box-sizing:border-box;margin:0;padding:0}
     body{
       min-height:100vh;display:flex;align-items:center;justify-content:center;
       padding:18px;font-family:system-ui,-apple-system,Segoe UI,Roboto;color:var(--text);
-      background:
-        radial-gradient(circle at top,#16a34a22 0,transparent 55%),
-        linear-gradient(135deg,var(--bg),var(--bg2));
+      background:radial-gradient(circle at top,#16a34a22 0,transparent 55%),linear-gradient(135deg,var(--bg),var(--bg2));
     }
     .wrap{width:100%;max-width:520px}
     .card{
@@ -35,54 +29,25 @@
     }
     h1{font-size:15px;letter-spacing:.10em;text-transform:uppercase}
     .sub{color:var(--muted);font-size:12px;margin-top:2px;line-height:1.4}
-
     .sep{height:1px;background:rgba(148,163,184,.22);margin:14px 0}
-
     .step{display:none}
     .step.active{display:block}
-
     label{font-size:12px;color:var(--muted)}
     input{
-      width:100%;
-      padding:12px 12px;border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(15,23,42,.55);
-      color:var(--text);
-      margin:8px 0 10px;
-      font-size:15px;
+      width:100%;padding:12px 12px;border-radius:12px;border:1px solid var(--line);
+      background:rgba(15,23,42,.55);color:var(--text);margin:8px 0 10px;font-size:15px;
     }
-
-    .btn{
-      width:100%;padding:12px;border-radius:999px;
-      border:none;cursor:pointer;font-weight:900;
-      margin-top:6px;
-    }
+    .btn{width:100%;padding:12px;border-radius:999px;border:none;cursor:pointer;font-weight:900;margin-top:6px;}
     .primary{background:linear-gradient(135deg,#facc15,#f97316);color:#022c22}
-    .ghost{
-      background:rgba(250,204,21,.12);
-      border:1px solid rgba(250,204,21,.35);
-      color:var(--text);
-    }
-    .mutedbtn{
-      background:rgba(2,44,34,.18);
-      border:1px solid var(--line);
-      color:var(--text);
-    }
+    .ghost{background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.35);color:var(--text)}
+    .mutedbtn{background:rgba(2,44,34,.18);border:1px solid var(--line);color:var(--text)}
     .btn:disabled{opacity:.55;cursor:not-allowed}
-
     .row{display:flex;gap:10px;margin-top:8px}
     .row > *{flex:1}
-
     .msg{margin-top:10px;text-align:center;font-size:13px}
     .ok{color:var(--ok)} .err{color:var(--danger)}
     .tiny{font-size:12px;color:var(--muted);margin-top:8px;text-align:center;line-height:1.5}
-
-    .spin{
-      display:inline-block;width:16px;height:16px;margin-left:8px;
-      border:2px solid rgba(229,231,235,.35);
-      border-top:2px solid rgba(250,204,21,.95);
-      border-radius:50%;animation:spin 1s linear infinite;vertical-align:-3px;
-    }
+    .spin{display:inline-block;width:16px;height:16px;margin-left:8px;border:2px solid rgba(229,231,235,.35);border-top:2px solid rgba(250,204,21,.95);border-radius:50%;animation:spin 1s linear infinite;vertical-align:-3px;}
     @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 
@@ -96,30 +61,23 @@
         <div class="ico">🏠</div>
         <div>
           <h1>DIGIY LOC • PRO</h1>
-          <div class="sub">Entrée rapide • Si déjà connecté, on t’envoie direct au menu</div>
+          <div class="sub">Entrée rapide • zéro 404 (redirige uniquement vers Mon Espace)</div>
         </div>
       </div>
 
       <div class="msg" id="msg"></div>
 
-      <!-- STEP 1 -->
       <div class="step active" id="step1">
         <label>Téléphone</label>
         <input id="phone" placeholder="+221771342889" autocomplete="tel" inputmode="tel" />
-
         <button class="btn primary" id="sendOtp">📩 Envoyer le code</button>
-
-        <div class="tiny">
-          Important : si tu renvoies un code, <b>seul le dernier SMS</b> est valable.
-        </div>
+        <div class="tiny">Ne clique pas 2 fois. Seul le dernier code est valable.</div>
       </div>
 
-      <!-- STEP 2 -->
       <div class="step" id="step2">
         <label>Code reçu par SMS</label>
         <input id="otp" placeholder="ex: 955496" inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
         <div class="tiny" id="sentTo"></div>
-
         <button class="btn primary" id="verifyOtp">✅ Valider</button>
 
         <div class="row">
@@ -136,20 +94,13 @@
 
 <script>
 (async () => {
-  // =========================
-  // CONFIG
-  // =========================
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
   const MON_ESPACE_MENU = "https://beauville.github.io/mon-espace-digiy/?choose=1";
-  const LOGIN_URL = "https://beauville.github.io/login-otp-fix/";
 
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // =========================
-  // DOM
-  // =========================
   const $ = (id) => document.getElementById(id);
   const step1 = $("step1"), step2 = $("step2");
   const msgEl = $("msg");
@@ -163,50 +114,33 @@
 
   const msg = (t, cls="") => { msgEl.className = "msg " + cls; msgEl.textContent = t || ""; };
   const setStep = (n) => { step1.classList.toggle("active", n===1); step2.classList.toggle("active", n===2); };
-  const go = (url) => setTimeout(() => window.location.replace(url), 650);
+  const go = (url) => setTimeout(() => window.location.replace(url), 500);
 
   const setLoading = (btn, on) => {
     btn.disabled = !!on;
-    if(on && !btn.dataset.busy){
-      btn.dataset.busy = "1";
-      btn.innerHTML = btn.innerHTML + '<span class="spin"></span>';
-    }
-    if(!on && btn.dataset.busy){
-      btn.dataset.busy = "";
-      const s = btn.querySelector(".spin");
-      if(s) s.remove();
-    }
+    if(on && !btn.dataset.busy){ btn.dataset.busy="1"; btn.innerHTML += '<span class="spin"></span>'; }
+    if(!on && btn.dataset.busy){ btn.dataset.busy=""; const s=btn.querySelector(".spin"); if(s) s.remove(); }
   };
 
   function normalizePhone(raw){
-    let p = String(raw || "").trim();
-    p = p.replace(/\s+/g, "").replace(/[^\d+]/g, "");
-    // 771234567 -> +221771234567
+    let p = String(raw || "").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
     if (/^\d+$/.test(p) && (p.startsWith("7") || p.startsWith("77"))) p = "221" + p;
-    // 221771... -> +221771...
     if (/^\d+$/.test(p) && p.startsWith("221")) p = "+" + p;
-    // force +
     if (!p.startsWith("+")) p = "+" + p;
     return p;
   }
 
-  // =========================
-  // ZÉRO FRICTION : si déjà connecté -> menu direct
-  // =========================
+  $("goMenu").onclick = () => window.location.href = MON_ESPACE_MENU;
+
+  // ✅ ZÉRO FRICTION : si session existe → menu direct (pas d'OTP)
   const { data: sessData } = await client.auth.getSession();
   if (sessData?.session) {
-    // On ne redemande pas OTP
     localStorage.setItem("digiy_last_module", "loc");
     return go(MON_ESPACE_MENU);
   }
 
-  // =========================
-  // FLOW OTP
-  // =========================
   let currentPhone = "";
   let resendLock = false;
-
-  $("goMenu").onclick = () => window.location.href = MON_ESPACE_MENU;
 
   btnBack.onclick = () => {
     currentPhone = "";
@@ -219,43 +153,25 @@
   };
 
   async function routeAfterLogin(){
-    // DB tranche (pro + module loc)
+    // DB tranche LOC, sinon menu
     const { data: userData } = await client.auth.getUser();
     const user = userData?.user;
+    if(!user?.id) return go(MON_ESPACE_MENU);
 
-    if(!user?.id){
-      msg("Session invalide. Retour menu…", "err");
-      return go(MON_ESPACE_MENU);
-    }
-
-    const { data: pro, error } = await client
+    const { data: pro } = await client
       .from("pros")
       .select("modules,is_active")
       .eq("auth_user_id", user.id)
       .maybeSingle();
 
-    if(error || !pro){
-      msg("Profil PRO introuvable. Retour menu…", "err");
-      return go(MON_ESPACE_MENU);
-    }
-
-    if(!pro.is_active){
-      msg("Compte en attente d’activation.", "err");
-      return;
-    }
-
-    const modules = (pro.modules || []).map(m => String(m).toLowerCase());
-    if(!modules.includes("loc")){
-      msg("Accès LOC non autorisé. Retour menu…", "err");
-      return go(MON_ESPACE_MENU);
-    }
+    const modules = (pro?.modules || []).map(m => String(m).toLowerCase());
+    if(!pro?.is_active) return go(MON_ESPACE_MENU);
+    if(!modules.includes("loc")) return go(MON_ESPACE_MENU);
 
     localStorage.setItem("digiy_last_module", "loc");
-    msg("✅ Connecté. Accès LOC validé. Menu…", "ok");
     return go(MON_ESPACE_MENU);
   }
 
-  // Listener : fiable quand session arrive
   let redirectArmed = false;
   client.auth.onAuthStateChange(async (event, session) => {
     if(session && redirectArmed){
@@ -267,33 +183,19 @@
   btnSend.addEventListener("click", async () => {
     msg("");
     const phone = normalizePhone(phoneEl.value);
-
-    if(!phone || phone.length < 10 || !phone.startsWith("+")){
-      return msg("Numéro invalide (ex: +221771342889)", "err");
-    }
+    if(!phone || phone.length < 10 || !phone.startsWith("+")) return msg("Numéro invalide (ex: +221771342889)", "err");
 
     currentPhone = phone;
     phoneEl.value = currentPhone;
-    phoneEl.setAttribute("readonly","readonly"); // ✅ figé
+    phoneEl.setAttribute("readonly","readonly");
 
     setLoading(btnSend, true);
-
     try{
-      const { error } = await client.auth.signInWithOtp({
-        phone: currentPhone,
-        options: { channel: "sms" }
-      });
-
-      if(error){
-        phoneEl.removeAttribute("readonly");
-        return msg("Erreur OTP : " + (error.message || "inconnue"), "err");
-      }
-
+      const { error } = await client.auth.signInWithOtp({ phone: currentPhone, options: { channel: "sms" } });
+      if(error){ phoneEl.removeAttribute("readonly"); return msg("Erreur OTP : " + (error.message||""), "err"); }
       sentTo.textContent = "Code envoyé au " + currentPhone + " (utilise le dernier SMS)";
       msg("📲 Code envoyé. Entre les 6 chiffres.", "ok");
-      setStep(2);
-      otpEl.focus();
-
+      setStep(2); otpEl.focus();
     }catch(e){
       console.error(e);
       phoneEl.removeAttribute("readonly");
@@ -312,63 +214,41 @@
     msg("Renvoi en cours…", "");
 
     try{
-      const { error } = await client.auth.signInWithOtp({
-        phone: currentPhone,
-        options: { channel: "sms" }
-      });
-
-      if(error) msg("Erreur renvoi : " + (error.message || "inconnue"), "err");
+      const { error } = await client.auth.signInWithOtp({ phone: currentPhone, options: { channel: "sms" } });
+      if(error) msg("Erreur renvoi : " + (error.message||""), "err");
       else msg("✅ Nouveau code envoyé (utilise le dernier).", "ok");
-
     }catch(e){
       console.error(e);
       msg("Erreur renvoi (console).", "err");
     }
 
-    // cooldown 30s
-    let t = 30;
-    const tick = setInterval(() => {
-      t--;
-      btnResend.textContent = t>0 ? `🔁 Renvoyer (${t}s)` : "🔁 Renvoyer";
-      if(t<=0){
-        clearInterval(tick);
-        resendLock = false;
-        btnResend.disabled = false;
-        btnResend.textContent = "🔁 Renvoyer";
-      }
-    }, 1000);
+    setTimeout(()=>{
+      resendLock = false;
+      btnResend.disabled = false;
+      btnResend.textContent = "🔁 Renvoyer";
+    }, 30000);
   });
 
   btnVerify.addEventListener("click", async () => {
     msg("");
-    const token = String(otpEl.value || "").trim();
-
+    const token = String(otpEl.value||"").trim();
     if(!currentPhone) return msg("Téléphone manquant. Reviens en arrière.", "err");
     if(!token || token.length !== 6) return msg("Code invalide (6 chiffres).", "err");
 
     setLoading(btnVerify, true);
-
     try{
-      const { error } = await client.auth.verifyOtp({
-        phone: currentPhone,
-        token,
-        type:"sms"
-      });
-
-      if(error){
-        return msg("OTP invalide/expiré : " + (error.message || ""), "err");
-      }
+      const { error } = await client.auth.verifyOtp({ phone: currentPhone, token, type:"sms" });
+      if(error) return msg("OTP invalide/expiré : " + (error.message||""), "err");
 
       msg("✅ Connecté. Vérification accès LOC…", "ok");
       redirectArmed = true;
 
-      // fallback si listener tarde
       setTimeout(() => {
         if(redirectArmed){
           redirectArmed = false;
           routeAfterLogin();
         }
-      }, 1500);
+      }, 900);
 
     }catch(e){
       console.error(e);
