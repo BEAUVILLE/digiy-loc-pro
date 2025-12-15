@@ -1,278 +1,216 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DIGIY LOC PRO</title>
-<a href="medias.html">🖼️ Médias</a>  <style>
-    :root{
-      --bg:#022c22;--bg2:#065f46;--card:#052e16;
-      --accent:#facc15;--text:#e5e7eb;--muted:#9ca3af;
-      --danger:#f97373;--ok:#22c55e;--line:rgba(148,163,184,.28);
-      --glass:rgba(2,44,34,.35);
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      min-height:100vh;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  <title>DIGIY LOC PRO — Médias</title>
+
+  <!-- UI GLOBAL DIGIY -->
+  <link rel="stylesheet" href="ui.css" />
+
+  <!-- STYLE SPÉCIFIQUE MEDIAS (peut rester ici) -->
+  <style>
+    .medias-page{
+      padding:16px;
+      max-width:520px;
+      margin:auto;
       color:var(--text);
-      background:
-        radial-gradient(circle at top,#16a34a22 0,transparent 55%),
-        radial-gradient(circle at 20% 85%, rgba(250,204,21,.14) 0, transparent 55%),
-        linear-gradient(135deg,var(--bg),var(--bg2));
-      padding:18px;
     }
-    .wrap{max-width:980px;margin:0 auto}
-    .topbar{
-      display:flex;justify-content:space-between;align-items:center;gap:10px;
-      background:linear-gradient(145deg,rgba(5,46,22,.92),rgba(6,95,70,.90));
-      border:1px solid rgba(15,118,110,.45);
-      border-radius:20px;
-      padding:14px;
-      box-shadow:0 18px 50px rgba(0,0,0,.55);
+
+    .page-header h1{
+      font-size:1.4rem;
+      margin-bottom:4px;
     }
-    .brand{display:flex;align-items:center;gap:10px}
-    .ico{
-      width:44px;height:44px;border-radius:50%;
-      display:grid;place-items:center;
-      background:rgba(250,204,21,.14);
-      border:1px solid rgba(250,204,21,.35);
-      color:#022c22;font-weight:1000;font-size:22px;
+
+    .page-header p{
+      color:var(--muted);
+      font-size:0.95rem;
     }
-    .title{font-weight:1000;letter-spacing:.12em;text-transform:uppercase;font-size:13px}
-    .sub{font-size:12px;color:var(--muted);margin-top:2px}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .pill{
-      border:1px solid var(--line);
-      background:rgba(250,204,21,.12);
-      color:var(--text);
-      padding:10px 12px;border-radius:999px;
-      font-weight:1000;font-size:12px;cursor:pointer;
-      user-select:none;
-    }
-    .pill.danger{background:rgba(249,115,115,.12);border-color:rgba(249,115,115,.35)}
-    .grid{margin-top:14px;display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
-    @media(max-width:860px){.grid{grid-template-columns:1fr}}
+
     .card{
-      background:linear-gradient(145deg,rgba(5,46,22,.94),rgba(6,95,70,.92));
-      border:1px solid rgba(15,118,110,.45);
-      border-radius:20px;
-      padding:14px;
-      box-shadow:0 18px 50px rgba(0,0,0,.45);
+      background:var(--card);
+      border-radius:14px;
+      padding:16px;
+      margin-top:16px;
+      border:1px solid rgba(250,204,21,0.2);
     }
-    .card h2{
-      font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-      color:rgba(250,204,21,.95);margin-bottom:10px;
+
+    .card.highlight{
+      background:linear-gradient(135deg,var(--bg),var(--bg2));
     }
-    .muted{color:var(--muted);font-size:13px;line-height:1.6}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .chip{
-      padding:8px 10px;border-radius:999px;border:1px solid var(--line);
-      background:var(--glass);font-weight:900;font-size:12px;
+
+    .hint{
+      font-size:0.9rem;
+      color:#e5e7eb;
+      margin:8px 0 12px;
+      line-height:1.4;
     }
-    .ok{color:var(--ok)} .err{color:var(--danger)}
+
+    .gallery{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .photo{
+      aspect-ratio:1/1;
+      border-radius:10px;
+      background:var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.6rem;
+      color:var(--accent);
+      cursor:pointer;
+    }
+
     .btn{
-      width:100%;margin-top:10px;padding:12px 14px;border-radius:16px;
-      border:1px solid rgba(250,204,21,.35);
-      background:rgba(250,204,21,.12);
-      color:var(--text);font-weight:1000;cursor:pointer;text-align:left;
+      width:100%;
+      padding:12px;
+      border-radius:10px;
+      border:none;
+      font-weight:700;
+      margin-top:8px;
+      font-size:0.95rem;
+    }
+
+    .btn-primary{
+      background:var(--accent);
+      color:#022c22;
+    }
+
+    .btn-secondary{
+      background:#16a34a;
+      color:white;
+    }
+
+    .benefits{
+      padding-left:16px;
+      margin-bottom:12px;
+    }
+
+    .benefits li{
+      font-size:0.9rem;
+      margin-bottom:6px;
+    }
+
+    .map-preview{
+      height:160px;
+      border-radius:10px;
+      background:#0f172a;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      font-size:0.9rem;
+    }
+
+    .btn-link{
+      background:none;
+      border:none;
+      color:var(--accent);
+      margin-top:8px;
+      font-weight:600;
+      cursor:pointer;
+    }
+
+    /* MENU SIMPLE */
+    .top-nav{
+      display:flex;
+      gap:12px;
+      padding:12px 16px;
+      background:var(--bg);
+      border-bottom:1px solid rgba(250,204,21,0.2);
+    }
+
+    .top-nav a{
+      color:var(--text);
+      text-decoration:none;
+      font-weight:600;
+      font-size:0.9rem;
+    }
+
+    .top-nav a.active{
+      color:var(--accent);
     }
   </style>
+</head>
 
-  <script>
-(async()=>{
-  const SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+<body>
 
-  const MON_ESPACE_MENU="https://beauville.github.io/mon-espace-digiy/?choose=1";
-  const LOGIN_URL="https://beauville.github.io/login-otp-fix/";
+  <!-- MENU -->
+  <nav class="top-nav">
+    <a href="dashboard.html">🏠 Accueil</a>
+    <a href="planning.html">📅 Planning</a>
+    <a href="medias.html" class="active">🖼️ Médias</a>
+  </nav>
 
-  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <!-- PAGE MEDIAS -->
+  <main class="medias-page">
 
-  const whoEl = document.getElementById("who");
-  const statusEl = document.getElementById("status");
-  const chipsEl = document.getElementById("chips");
-  const metaEl = document.getElementById("meta");
+    <!-- HEADER -->
+    <header class="page-header">
+      <h1>🖼️ Médias & Localisation</h1>
+      <p>Montre ton vrai business. Aide les clients à te trouver.</p>
+    </header>
 
-  // ✅ HANDLERS POSÉS TOUT DE SUITE (AVANT LES RETURNS)
-  document.getElementById("planning").onclick = () => {
-    window.location.href = "./planning.html";
-  };
+    <!-- GALERIE -->
+    <section class="card">
+      <h2>📸 Galerie photos</h2>
+      <p class="hint">
+        Plus de photos = plus de confiance.<br>
+        Façade, intérieur, chambres, produits, véhicule.
+      </p>
 
-  document.getElementById("resas").onclick = () => {
-    window.location.href = "./reservations.html";
-  };
+      <div class="gallery">
+        <div class="photo">+</div>
+        <div class="photo">+</div>
+        <div class="photo">+</div>
+      </div>
 
-  document.getElementById("backMenu").onclick = () => {
-    location.href = MON_ESPACE_MENU;
-  };
+      <button class="btn btn-primary">➕ Ajouter des photos</button>
+    </section>
 
-  document.getElementById("logout").onclick = async () => {
-    try{ await client.auth.signOut(); }catch(e){}
-    location.href = LOGIN_URL;
-  };
+    <!-- GOOGLE MAPS -->
+    <section class="card highlight">
+      <h2>📍 Localisation (recommandé)</h2>
 
-  // 1) session obligatoire
-  const { data:s } = await client.auth.getSession();
-  if(!s?.session){
-    whoEl.textContent = "Non connecté";
-    statusEl.innerHTML = "<span class='err'>Accès refusé.</span> Connecte-toi d’abord.";
-    chipsEl.innerHTML = `<div class="chip">Action: connexion</div>`;
-    metaEl.innerHTML = `Session: <span class="err">NON</span>`;
-    return;
-  }
+      <p class="hint">
+        Les plateformes prennent ta visibilité.<br>
+        Google Maps te rend ton adresse, ton téléphone et le GPS client.
+      </p>
 
-  // 2) user
-  const { data:u } = await client.auth.getUser();
-  const user = u?.user;
-  if(!user?.id){
-    whoEl.textContent = "Session invalide";
-    statusEl.innerHTML = "<span class='err'>Accès refusé.</span>";
-    return;
-  }
+      <ul class="benefits">
+        <li>✅ Galerie photos illimitée</li>
+        <li>✅ Appels directs des clients</li>
+        <li>✅ Itinéraire GPS jusqu’à ton business</li>
+      </ul>
 
-  // 3) DB tranche : is_active + module loc
-  const { data:pro, error } = await client
-    .from("pros")
-    .select("display_name,business_name,is_active,modules")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
+      <button class="btn btn-secondary">
+        📍 Me localiser sur Google Maps
+      </button>
 
-  if(error || !pro){
-    whoEl.textContent = "Profil PRO introuvable";
-    statusEl.innerHTML = "<span class='err'>Ton profil PRO n’est pas reconnu.</span>";
-    chipsEl.innerHTML = `<div class="chip">Retour menu</div>`;
-    metaEl.innerHTML = `Session: <span class="ok">OK</span> • DB: <span class="err">PRO introuvable</span>`;
-    return;
-  }
+      <p class="hint">
+        Gratuit. Tu peux créer ou revendiquer ta fiche Google.
+      </p>
+    </section>
 
-  const name = pro.display_name || pro.business_name || "PRO";
-  whoEl.textContent = "Bienvenue, " + name;
+    <!-- APERÇU CLIENT -->
+    <section class="card">
+      <h2>👀 Aperçu côté client</h2>
 
-  const modules = (pro.modules || []).map(m=>String(m).toLowerCase());
+      <div class="map-preview">
+        Aperçu Google Maps ici
+      </div>
 
-  metaEl.innerHTML =
-    `Session: <span class="ok">OK</span> • ` +
-    `Actif: <span class="${pro.is_active ? "ok":"err"}">${pro.is_active ? "OUI":"NON"}</span>`;
+      <button class="btn-link">
+        🔗 Ouvrir dans Google Maps
+      </button>
+    </section>
 
-  if(!pro.is_active){
-    statusEl.innerHTML = "<span class='err'>Compte en attente d’activation.</span> (Admin DIGIY)";
-    chipsEl.innerHTML = `<div class="chip">Statut: attente</div>`;
-    return;
-  }
+  </main>
 
-  if(!modules.includes("loc")){
-    statusEl.innerHTML = "<span class='err'>Accès LOC non autorisé.</span>";
-    chipsEl.innerHTML = `<div class="chip">Modules: ${modules.join(", ") || "—"}</div>`;
-    return;
-  }
-
-  // ✅ OK
-  localStorage.setItem("digiy_last_module","loc");
-  statusEl.innerHTML = "<span class='ok'>Accès LOC validé ✅</span> Tu es dans LOC PRO.";
-  chipsEl.innerHTML = `
-    <div class="chip">Module: LOC</div>
-    <div class="chip">Actif</div>
-    <div class="chip">Multi-modules OK</div>
-  `;
-})();
-</script>
-
-(async()=>{
-  const SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
-  const MON_ESPACE_MENU="https://beauville.github.io/mon-espace-digiy/?choose=1";
-  const LOGIN_URL="https://beauville.github.io/login-otp-fix/";
-
-  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const whoEl = document.getElementById("who");
-  const statusEl = document.getElementById("status");
-  const chipsEl = document.getElementById("chips");
-  const metaEl = document.getElementById("meta");
-
-  document.getElementById("backMenu").onclick = ()=>location.href = MON_ESPACE_MENU;
-  document.getElementById("logout").onclick = async ()=>{
-    try{ await client.auth.signOut(); }catch(e){}
-    location.href = LOGIN_URL;
-  };
-
-  // 1) session obligatoire
-  const { data:s } = await client.auth.getSession();
-  if(!s?.session){
-    whoEl.textContent = "Non connecté";
-    statusEl.innerHTML = "<span class='err'>Accès refusé.</span> Connecte-toi d’abord.";
-    chipsEl.innerHTML = `<div class="chip">Action: connexion</div>`;
-    metaEl.innerHTML = `Session: <span class="err">NON</span>`;
-    return;
-  }
-
-  // 2) user
-  const { data:u } = await client.auth.getUser();
-  const user = u?.user;
-  if(!user?.id){
-    whoEl.textContent = "Session invalide";
-    statusEl.innerHTML = "<span class='err'>Accès refusé.</span>";
-    return;
-  }
-
-  // 3) DB tranche : is_active + module loc
-  const { data:pro, error } = await client
-    .from("pros")
-    .select("display_name,business_name,is_active,modules")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
-
-  if(error || !pro){
-    whoEl.textContent = "Profil PRO introuvable";
-    statusEl.innerHTML = "<span class='err'>Ton profil PRO n’est pas reconnu.</span>";
-    chipsEl.innerHTML = `<div class="chip">Retour menu</div>`;
-    metaEl.innerHTML = `Session: <span class="ok">OK</span> • DB: <span class="err">PRO introuvable</span>`;
-    return;
-  }
-
-  const name = pro.display_name || pro.business_name || "PRO";
-  whoEl.textContent = "Bienvenue, " + name;
-
-  const modules = (pro.modules || []).map(m=>String(m).toLowerCase());
-
-  metaEl.innerHTML =
-    `Session: <span class="ok">OK</span> • ` +
-    `Actif: <span class="${pro.is_active ? "ok":"err"}">${pro.is_active ? "OUI":"NON"}</span>`;
-
-  if(!pro.is_active){
-    statusEl.innerHTML = "<span class='err'>Compte en attente d’activation.</span> (Admin DIGIY)";
-    chipsEl.innerHTML = `<div class="chip">Statut: attente</div>`;
-    return;
-  }
-
-  if(!modules.includes("loc")){
-    statusEl.innerHTML = "<span class='err'>Accès LOC non autorisé.</span> Active le module dans ton compte.";
-    chipsEl.innerHTML = `<div class="chip">Modules: ${modules.join(", ") || "—"}</div>`;
-    return;
-  }
-
-  // ✅ OK : LOC autorisé -> tu restes ici (pas de boucle)
-  localStorage.setItem("digiy_last_module","loc");
-
-  statusEl.innerHTML = "<span class='ok'>Accès LOC validé ✅</span> Tu es dans LOC PRO.";
-  chipsEl.innerHTML = `
-    <div class="chip">Module: LOC</div>
-    <div class="chip">Actif</div>
-    <div class="chip">Multi-modules OK</div>
-  `;
-
-document.getElementById("planning").onclick = () => {
-  window.location.href = "./planning.html";
-};
-
-document.getElementById("resas").onclick = () => {
-  window.location.href = "./reservations.html";
-};
-})();
-</script>
-
-</script>
 </body>
 </html>
