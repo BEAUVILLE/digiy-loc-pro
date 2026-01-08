@@ -7,10 +7,157 @@
   <meta name="theme-color" content="#061b14"/>
   
   <!-- ============================================ -->
-  <!-- SCRIPTS CRITIQUES : CHARGER EN PREMIER      -->
+  <!-- SUPABASE -->
   <!-- ============================================ -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js"></script>
+  
+  <!-- ============================================ -->
+  <!-- GUARD INLINE (DIRECTEMENT DANS LE HTML) -->
+  <!-- ============================================ -->
+  <script>
+    (function() {
+      'use strict';
+      console.log('🔧 Chargement Guard INLINE...');
+
+      const SUPABASE_CONFIG = {
+        url: "https://wesqmwjjtsefyjnluosj.supabase.co",
+        key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA"
+      };
+
+      const sb = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+      
+      const CACHE_KEY = 'digiy_guard_cache';
+      const CACHE_DURATION = 60000;
+
+      async function guardOrPay(moduleCode, loginPath = '/login.html') {
+        console.log(`🦅 [GUARD] Vérification module: ${moduleCode}`);
+
+        const statusEl = document.getElementById('guard_status');
+        if (statusEl) {
+          statusEl.textContent = '🔐 Vérification...';
+          statusEl.style.display = 'block';
+        }
+
+        try {
+          let phone = localStorage.getItem('digiy_auth_phone') 
+                   || sessionStorage.getItem('digiy_auth_phone');
+
+          if (!phone) {
+            console.log('❌ [GUARD] Aucun téléphone → Login');
+            window.location.href = loginPath;
+            return false;
+          }
+
+          console.log(`📱 [GUARD] Phone: ${phone}`);
+
+          const cached = checkCache(phone, moduleCode);
+          if (cached) {
+            console.log('✅ [GUARD] Cache valide');
+            if (statusEl) {
+              statusEl.textContent = '✅ Accès autorisé';
+              setTimeout(() => statusEl.style.display = 'none', 2000);
+            }
+            return true;
+          }
+
+          console.log(`🔍 [GUARD] Vérification BDD pour ${moduleCode}...`);
+          
+          const { data, error } = await sb
+            .from('digiy_subscriptions')
+            .select('*')
+            .eq('phone', phone)
+            .eq('module', moduleCode)
+            .eq('status', 'active')
+            .gt('current_period_end', new Date().toISOString())
+            .single();
+
+          if (error) {
+            if (error.code === 'PGRST116') {
+              console.log('❌ [GUARD] Pas d\'abonnement → Login');
+              if (statusEl) statusEl.textContent = '❌ Abonnement expiré';
+              setTimeout(() => window.location.href = loginPath, 1500);
+              return false;
+            }
+            throw error;
+          }
+
+          if (data) {
+            console.log('✅ [GUARD] Abonnement valide');
+            setCache(phone, moduleCode, data);
+            
+            if (statusEl) {
+              statusEl.textContent = '✅ Accès autorisé';
+              setTimeout(() => statusEl.style.display = 'none', 2000);
+            }
+            
+            return true;
+          }
+
+          console.log('❌ [GUARD] Pas d\'abonnement → Login');
+          if (statusEl) statusEl.textContent = '❌ Abonnement requis';
+          setTimeout(() => window.location.href = loginPath, 1500);
+          return false;
+
+        } catch (err) {
+          console.error('❌ [GUARD] Erreur:', err);
+          if (statusEl) statusEl.textContent = '⚠️ Erreur';
+          setTimeout(() => window.location.href = loginPath, 2000);
+          return false;
+        }
+      }
+
+      function getPhone() {
+        return localStorage.getItem('digiy_auth_phone') 
+            || sessionStorage.getItem('digiy_auth_phone')
+            || null;
+      }
+
+      function checkCache(phone, moduleCode) {
+        try {
+          const cacheStr = sessionStorage.getItem(CACHE_KEY);
+          if (!cacheStr) return null;
+          
+          const cache = JSON.parse(cacheStr);
+          const key = `${phone}_${moduleCode}`;
+          const entry = cache[key];
+          
+          if (!entry) return null;
+          
+          if (Date.now() - entry.timestamp > CACHE_DURATION) {
+            delete cache[key];
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+            return null;
+          }
+          
+          return entry.data;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function setCache(phone, moduleCode, data) {
+        try {
+          let cache = {};
+          const cacheStr = sessionStorage.getItem(CACHE_KEY);
+          if (cacheStr) cache = JSON.parse(cacheStr);
+          
+          const key = `${phone}_${moduleCode}`;
+          cache[key] = { data: data, timestamp: Date.now() };
+          
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        } catch (e) {
+          console.warn('Cache write failed:', e);
+        }
+      }
+
+      window.DIGIY = {
+        guardOrPay: guardOrPay,
+        getPhone: getPhone
+      };
+
+      console.log('✅ [GUARD] Guard INLINE chargé avec succès');
+    })();
+  </script>
   
   <style>
     body {
@@ -22,7 +169,6 @@
       min-height: 100vh;
     }
     
-    /* STATUS GUARD */
     #guard_status {
       position: fixed;
       top: 20px;
@@ -37,7 +183,6 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* APP CACHÉE PAR DÉFAUT */
     .app {
       display: none;
     }
@@ -46,7 +191,6 @@
       display: block;
     }
     
-    /* STYLE SIMPLE */
     .app {
       max-width: 1200px;
       margin: 0 auto;
@@ -122,14 +266,8 @@
 </head>
 <body>
 
-<!-- ========================================== -->
-<!-- STATUS GUARD -->
-<!-- ========================================== -->
 <div id="guard_status">🔐 Vérification...</div>
 
-<!-- ========================================== -->
-<!-- APP DIGIY LOC -->
-<!-- ========================================== -->
 <div class="app">
   <div class="header">
     <h1>🏠 DIGIY LOC PRO</h1>
@@ -163,38 +301,28 @@
   </div>
 </div>
 
-<!-- ========================================== -->
-<!-- INIT APP -->
-<!-- ========================================== -->
 <script>
-  window.addEventListener('DOMContentLoaded', async () => {
+  (async () => {
     console.log('🚀 Démarrage DIGIY LOC PRO');
     
-    // Attendre que guard soit disponible (max 5 secondes)
-    let attempts = 0;
-    while (!window.DIGIY && attempts < 50) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      attempts++;
-    }
-    
+    // Vérifier immédiatement que Guard est chargé
     if (!window.DIGIY) {
-      console.error('❌ Guard non chargé après 5 secondes');
-      alert('Erreur système. Rafraîchissez la page (F5).');
+      console.error('❌ ERREUR CRITIQUE : Guard non chargé !');
+      alert('Erreur système. Contactez le support.');
       return;
     }
     
-    console.log('✅ Guard détecté');
+    console.log('✅ Guard détecté immédiatement');
     
-    // Vérifier l'accès avec le guard
+    // Vérifier l'accès
     const ok = await window.DIGIY.guardOrPay("LOC", "./login.html");
     
     if (!ok) {
-      console.log('❌ Accès refusé - Redirection login');
+      console.log('❌ Accès refusé');
       return;
     }
     
-    // ✅ Accès autorisé
-    console.log("🦅 DIGIY LOC chargé avec succès");
+    console.log("🦅 DIGIY LOC OK");
     
     // Afficher l'app
     document.documentElement.classList.add('access-ok');
@@ -206,24 +334,14 @@
       if (phoneEl) phoneEl.textContent = phone;
     }
     
-    // Masquer le status après 1.2s
+    // Masquer status
     setTimeout(() => {
       const statusEl = document.getElementById("guard_status");
       if (statusEl) statusEl.style.display = "none";
     }, 1200);
     
-    // Initialiser l'app
-    initLocApp();
-  });
-  
-  function initLocApp() {
-    console.log("🏠 Initialisation DIGIY LOC...");
-    
-    // Ici tu peux charger tes données
-    // Exemple : loadLogements(), loadReservations(), etc.
-    
-    console.log("✅ DIGIY LOC prêt à l'emploi");
-  }
+    console.log("✅ DIGIY LOC prêt");
+  })();
 </script>
 
 </body>
