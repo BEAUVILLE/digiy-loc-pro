@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>GO PIN — DIGIY</title>
+  <meta name="theme-color" content="#16a34a" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.78);
+      --green:#16a34a; --gold:#facc15; --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.20), transparent 60%),
+                 radial-gradient(900px 500px at 110% 0%, rgba(250,204,21,.10), transparent 55%),
+                 var(--bg);
+      color:var(--text);
+      padding:18px;
+    }
+    .wrap{max-width:760px;margin:0 auto}
+    .brand{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .brand h1{font-size:18px;margin:0;letter-spacing:.5px}
+    .badge{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow:0 18px 40px rgba(0,0,0,.35);
+    }
+    .title{font-size:24px;font-weight:800;margin:0 0 6px}
+    .meta{color:var(--muted);margin:0 0 12px;line-height:1.35}
+    .pin{display:inline-flex;gap:10px;align-items:center;margin:10px 0 14px}
+    .pin code{font-size:18px;font-weight:800;background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.22);
+      padding:10px 12px;border-radius:14px;color:var(--text);letter-spacing:1px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .btn{
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      padding:12px 14px;border-radius:14px;border:1px solid var(--line);
+      background:rgba(255,255,255,.03); color:var(--text); text-decoration:none;
+      font-weight:750;
+    }
+    .btn.primary{border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.12)}
+    .btn.gold{border-color:rgba(250,204,21,.30); background:rgba(250,204,21,.10)}
+    .footer{margin-top:14px;color:var(--muted);font-size:12px;text-align:center}
+    .err{color:#ffd2d2;background:rgba(255,0,0,.10);border:1px solid rgba(255,0,0,.22);padding:12px;border-radius:14px}
+    .small{font-size:12px;color:var(--muted)}
+    @media (max-width:560px){ .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <h1>DIGIY ♾️ — GO PIN</h1>
+      <div class="badge">Terrain • Rapide • Direct</div>
+    </div>
+
+    <div class="card">
+      <p class="small" id="loading">Chargement du GO PIN…</p>
+      <div id="content" style="display:none">
+        <h2 class="title" id="title"></h2>
+        <p class="meta" id="meta"></p>
+
+        <div class="pin">
+          <span class="small">PIN</span>
+          <code id="pin_code">DAK-XXXXX</code>
+        </div>
+
+        <div class="grid">
+          <a class="btn primary" id="btn_call" href="#" rel="nofollow">📞 Appeler</a>
+          <a class="btn primary" id="btn_wa" href="#" rel="nofollow">💬 WhatsApp</a>
+          <a class="btn gold" id="btn_map" href="#" target="_blank" rel="nofollow">📍 Itinéraire</a>
+          <a class="btn" id="btn_share" href="#" rel="nofollow">🔗 Partager</a>
+        </div>
+
+        <div class="footer">0% commission • Contact direct • DIGIYLYFE</div>
+      </div>
+
+      <div id="error" style="display:none" class="err"></div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ✅ Tes variables Supabase (déjà intégrées)
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const $ = (id)=>document.getElementById(id);
+
+  function getSlug(){
+    const u = new URL(location.href);
+    let slug = u.searchParams.get("slug");
+    if (slug) return slug.trim();
+    // fallback: /pin/chez-astou (si un jour tu mets un rewrite)
+    const m = location.pathname.match(/\/pin\/([^\/]+)/);
+    if (m && m[1]) return decodeURIComponent(m[1]);
+    return "";
+  }
+
+  function cleanPhone(p){
+    if(!p) return "";
+    // enlève espaces, tirets
+    return String(p).replace(/[^\d+]/g,'');
+  }
+
+  async function logEvent(pin_id, type, meta){
+    try{
+      await sb.rpc("log_go_pin_event", { p_pin_id: pin_id, p_event_type: type, p_meta: meta || {} });
+    }catch(e){ /* silencieux */ }
+  }
+
+  async function main(){
+    const slug = getSlug();
+    if(!slug){
+      $("loading").style.display="none";
+      $("error").style.display="block";
+      $("error").textContent = "Slug manquant. Exemple: pin.html?slug=chez-astou-saly";
+      return;
+    }
+
+    const { data: pin, error } = await sb
+      .from("go_pins")
+      .select("id, pin_code, slug, title, category, phone, whatsapp, address_label, lat, lng, is_active")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    $("loading").style.display="none";
+
+    if(error || !pin){
+      $("error").style.display="block";
+      $("error").textContent = "GO PIN introuvable ou inactif.";
+      return;
+    }
+
+    $("content").style.display="block";
+    $("title").textContent = pin.title || "GO PIN";
+    $("pin_code").textContent = pin.pin_code || "DAK-XXXXX";
+
+    const parts = [];
+    if(pin.category) parts.push("Catégorie: " + pin.category);
+    if(pin.address_label) parts.push(pin.address_label);
+    $("meta").textContent = parts.join(" • ");
+
+    // boutons
+    const phone = cleanPhone(pin.phone);
+    const wa = cleanPhone(pin.whatsapp || pin.phone);
+
+    $("btn_call").href = phone ? ("tel:" + phone) : "#";
+    $("btn_call").style.opacity = phone ? "1" : ".45";
+
+    $("btn_wa").href = wa ? ("https://wa.me/" + wa.replace(/^\+/,'') ) : "#";
+    $("btn_wa").style.opacity = wa ? "1" : ".45";
+
+    const hasGeo = (typeof pin.lat === "number" && typeof pin.lng === "number");
+    const gmaps = hasGeo
+      ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pin.lat + "," + pin.lng)}`
+      : "";
+    $("btn_map").href = gmaps || "#";
+    $("btn_map").style.opacity = gmaps ? "1" : ".45";
+
+    const shareUrl = new URL(location.href);
+    shareUrl.searchParams.set("slug", pin.slug);
+
+    $("btn_share").addEventListener("click", async (e)=>{
+      e.preventDefault();
+      const payload = { title: pin.title, text: `GO PIN: ${pin.pin_code}`, url: shareUrl.toString() };
+      try{
+        if(navigator.share){
+          await navigator.share(payload);
+        }else{
+          await navigator.clipboard.writeText(shareUrl.toString());
+          alert("Lien copié ✅");
+        }
+        logEvent(pin.id, "share_click", { slug: pin.slug });
+      }catch(_){}
+    });
+
+    $("btn_call").addEventListener("click", ()=> logEvent(pin.id, "call_click", { slug: pin.slug }));
+    $("btn_wa").addEventListener("click", ()=> logEvent(pin.id, "wa_click", { slug: pin.slug }));
+    $("btn_map").addEventListener("click", ()=> logEvent(pin.id, "map_click", { slug: pin.slug }));
+
+    // log view (ou qr_scan si tu veux distinguer)
+    logEvent(pin.id, "view", { slug: pin.slug, pin_code: pin.pin_code });
+  }
+
+  main();
+})();
+</script>
+</body>
+</html>
