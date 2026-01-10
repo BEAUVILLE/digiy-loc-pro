@@ -1,216 +1,129 @@
-/* =========================
-   DIGIY LOC PRO GUARD — PHONE+PIN via verify_access_pin()
-   - No email UI
-   - Uses RPC: verify_access_pin(p_phone, p_pin, p_module) -> json
-   - Stores a local session (token if provided by RPC, else fallback)
-   - Enforces subscription via is_module_active(p_phone,p_module) if you keep it
-========================= */
+/* guard.js — DIGIY LOC PRO (SAFE, TERRAIN-FIRST, NO-CRASH)
+   - Garantit window.DIGIY_GUARD
+   - Lit slug depuis URL (?slug=) ou localStorage
+   - Fallback propre si Supabase/RPC indispo
+*/
 (function(){
   "use strict";
 
   // =============================
-  // SUPABASE
+  // GLOBAL SAFE EXPORT (always)
   // =============================
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  const G = (window.DIGIY_GUARD = window.DIGIY_GUARD || {});
 
-  const KEY = {
-    phone: "digiy_phone",
-    sess:  "digiy_loc_pro_session" // { phone, ok, token?, exp }
-  };
+  // Basic logger (quiet on prod if needed)
+  const log = (...a)=>console.log("%c[DIGIY_GUARD]","color:#22c55e;font-weight:700",...a);
+  const warn = (...a)=>console.warn("%c[DIGIY_GUARD]","color:#f59e0b;font-weight:700",...a);
+  const err = (...a)=>console.error("%c[DIGIY_GUARD]","color:#ef4444;font-weight:700",...a);
 
   // =============================
   // HELPERS
   // =============================
-  function normPhone(p){
-    p = String(p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
-    if(p.startsWith("00221")) p = "+221" + p.slice(5);
-    if(!p.startsWith("+") && p.startsWith("221")) p = "+" + p;
-    if(!p.startsWith("+221") && /^\d{9}$/.test(p)) p = "+221" + p;
-    return p;
+  function qs(name){
+    try { return new URL(location.href).searchParams.get(name) || ""; }
+    catch(e){ return ""; }
   }
-
-  function getSB(){
-    if(window.__sb) return window.__sb;
-    if(!window.supabase?.createClient) throw new Error("Supabase JS not loaded");
-    window.__sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    return window.__sb;
-  }
-
-  function getPhone(){
-    const s = sessionStorage.getItem(KEY.phone) || sessionStorage.getItem("digiy_driver_phone");
-    if(s) return s;
-    try{
-      const obj = JSON.parse(localStorage.getItem(KEY.sess)||"null");
-      if(obj?.phone) return obj.phone;
-    }catch(_){}
-    return null;
-  }
-
-  function setPhone(phone){
-    const p = normPhone(phone);
-    sessionStorage.setItem(KEY.phone, p);
-    sessionStorage.setItem("digiy_driver_phone", p);
-    try{
-      localStorage.setItem("digiy_access_pin", JSON.stringify({ phone: p }));
-      localStorage.setItem("digiy_driver_access_pin", JSON.stringify({ phone: p }));
-    }catch(_){}
-    return p;
-  }
-
-  function getSession(){
-    try{
-      const s = JSON.parse(localStorage.getItem(KEY.sess)||"null");
-      if(!s?.phone) return null;
-      if(s?.exp && Date.now() > Number(s.exp)) return null;
+  function getSlug(){
+    const s = (qs("slug") || "").trim();
+    if (s) {
+      try { localStorage.setItem("digiy_loc_slug", s); } catch(_){}
       return s;
-    }catch(_){ return null; }
+    }
+    try { return (localStorage.getItem("digiy_loc_slug") || "").trim(); } catch(_){}
+    return "";
+  }
+  function withSlug(url){
+    const slug = getSlug();
+    if (!slug) return url;
+    try{
+      const u = new URL(url, location.origin);
+      if (!u.searchParams.get("slug")) u.searchParams.set("slug", slug);
+      return u.pathname + "?" + u.searchParams.toString();
+    }catch(_){
+      // relative
+      return url + (url.includes("?") ? "&" : "?") + "slug=" + encodeURIComponent(slug);
+    }
   }
 
-  function setSession(obj){
-    const phone = normPhone(obj.phone);
-    const exp = obj.exp ? Number(obj.exp) : (Date.now() + 1000*60*60*8); // fallback 8h
-    const sess = {
-      phone,
-      ok: true,
-      token: obj.token ? String(obj.token) : null,
-      exp
-    };
-    localStorage.setItem(KEY.sess, JSON.stringify(sess));
-    setPhone(phone);
-    return sess;
-  }
-
-  function clearSession(){
-    try{ localStorage.removeItem(KEY.sess); }catch(_){}
-    try{ sessionStorage.removeItem(KEY.phone); }catch(_){}
-  }
-
-  function go(url){
-    location.replace(url);
-  }
-
-  // =============================
-  // RPC
-  // =============================
-  async function rpcVerifyAccessPin(phone, pin, module){
-    const sb = getSB();
-    const { data, error } = await sb.rpc("verify_access_pin", {
-      p_phone: phone,
-      p_pin: pin,
-      p_module: module
-    });
-    if(error) throw error;
-    return data; // json
-  }
-
-  async function rpcIsModuleActive(phone, module){
-    const sb = getSB();
-    // If the function exists in your project, keep it. If not, comment it out in boot().
-    const { data, error } = await sb.rpc("is_module_active", {
-      p_phone: phone,
-      p_module: module
-    });
-    if(error) throw error;
-    return !!data;
-  }
-
-  // optional: if your verify_access_pin returns token/exp_ms we can "validate" by expiry only
-  function sessionLooksValid(){
-    const s = getSession();
-    if(!s?.phone) return false;
-    if(s.exp && Date.now() > Number(s.exp)) return false;
-    return true;
+  function gotoLogin(reason){
+    const dest = withSlug("login.html");
+    warn(reason || "Retour login", "->", dest);
+    location.replace(dest);
   }
 
   // =============================
   // PUBLIC API
   // =============================
-  async function boot(cfg){
-    cfg = cfg || {};
-    const module = String(cfg.module || "LOC").trim();
-    const dashboard = cfg.dashboard || "./planning.html";
-    const login = cfg.login || "./login.html";
-    const pay = cfg.pay || "https://beauville.github.io/commencer-a-payer/";
+  G.version = "loc-pro-guard-v1";
+  G.getSlug = getSlug;
+  G.withSlug = withSlug;
 
-    // 1) phone required
-    const phoneRaw = getPhone();
-    if(!phoneRaw){
-      go(login);
-      return;
-    }
-    const phone = setPhone(phoneRaw);
-
-    // 2) session required (local)
-    if(!sessionLooksValid()){
-      clearSession();
-      go(login);
-      return;
-    }
-
-    // 3) subscription gate (optional but recommended)
+  // Minimal session store (phone + flag)
+  G.getSession = function(){
     try{
-      const ok = await rpcIsModuleActive(phone, module);
-      if(!ok){
-        const from = location.href;
-        go(pay + "?module=" + encodeURIComponent(module)
-          + "&phone=" + encodeURIComponent(phone)
-          + "&from=" + encodeURIComponent(from));
-        return;
-      }
-    }catch(e){
-      // If is_module_active doesn't exist or fails, you can decide:
-      // - redirect login, or
-      // - allow access.
-      // Here: safer -> login.
-      console.warn("is_module_active error:", e);
-      clearSession();
-      go(login);
-      return;
-    }
-
-    // 4) go dashboard if not already
-    const dashName = String(dashboard).split("/").pop();
-    if(dashName && location.pathname.endsWith(dashName)) return;
-    go(dashboard);
-  }
-
-  // Used by login page to create a session
-  async function loginWithPin(phone, pin, module){
-    const p = setPhone(phone);
-    const res = await rpcVerifyAccessPin(p, String(pin||""), String(module||"LOC"));
-
-    // We accept several possible return shapes (because it's JSON):
-    // { ok:true, token:"...", exp_ms:3600000 } or { ok:true } etc.
-    const ok =
-      (res === true) ||
-      (res && typeof res === "object" && (res.ok === true || res.allowed === true || res.valid === true));
-
-    if(!ok){
-      return { ok:false, res };
-    }
-
-    // If RPC returns exp_ms, use it; else fallback 8h
-    let exp = Date.now() + 1000*60*60*8;
-    if(res && typeof res === "object"){
-      if(res.exp_ms) exp = Date.now() + Number(res.exp_ms);
-      if(res.exp) exp = Number(res.exp);
-    }
-
-    const token = (res && typeof res === "object" && res.token) ? String(res.token) : null;
-    setSession({ phone: p, token, exp });
-    return { ok:true, res };
-  }
-
-  window.DIGIY_LOC_PRO_GUARD = {
-    boot,
-    loginWithPin,
-    getPhone,
-    setPhone,
-    getSession,
-    setSession,
-    clearSession,
-    normPhone
+      const raw = localStorage.getItem("digiy_loc_session") || "";
+      return raw ? JSON.parse(raw) : null;
+    }catch(_){ return null; }
   };
+
+  G.setSession = function(obj){
+    try{
+      localStorage.setItem("digiy_loc_session", JSON.stringify(obj || {}));
+      return true;
+    }catch(_){ return false; }
+  };
+
+  G.clearSession = function(){
+    try{ localStorage.removeItem("digiy_loc_session"); }catch(_){}
+  };
+
+  // The only guard check used by pages
+  // It will NEVER throw; it returns {ok:boolean, reason:string}
+  G.checkAccess = async function(options){
+    const opts = options || {};
+    const requireSlug = opts.requireSlug !== false; // default true
+    const requireSession = opts.requireSession !== false; // default true
+
+    const slug = getSlug();
+    if (requireSlug && !slug) {
+      return { ok:false, reason:"Slug manquant. Exemple: login.html?slug=chez-astou-saly" };
+    }
+
+    if (requireSession) {
+      const s = G.getSession();
+      if (!s || !s.phone) {
+        return { ok:false, reason:"Session absente (téléphone/PIN non validés)" };
+      }
+    }
+
+    // Optional: if you later want subscription checks, plug them here
+    // For now, DO NOT invent RPC. Keep safe and return ok.
+    return { ok:true, reason:"OK" };
+  };
+
+  // Convenience: pages call ensureAccess() to redirect automatically
+  G.ensureAccess = async function(options){
+    try{
+      const res = await G.checkAccess(options);
+      if (!res.ok) {
+        gotoLogin(res.reason);
+        return false;
+      }
+      return true;
+    }catch(e){
+      err("Erreur guard inattendue", e);
+      gotoLogin("Erreur guard");
+      return false;
+    }
+  };
+
+  // Debug ping
+  G.ping = function(){
+    log("loaded", G.version, "slug=", getSlug());
+    return { loaded:true, version:G.version, slug:getSlug() };
+  };
+
+  // Auto-log when loaded
+  try { log("guard.js chargé ✅", "version:", G.version, "slug:", getSlug() || "(vide)"); }
+  catch(_){}
 })();
