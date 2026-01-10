@@ -127,26 +127,32 @@
   "use strict";
 
   // =============================
-  // SUPABASE
+  // SUPABASE (OK)
   // =============================
   const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
   const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // =============================
-  // ROUTES (adjust if needed)
+  // ROUTES
   // =============================
   const MODULE = "LOC";
   const DASHBOARD_URL = "./planning.html";
   const PAY_URL = "https://beauville.github.io/commencer-a-payer/";
 
-  // Session storage keys (shared with guard)
+  // =============================
+  // STORAGE KEYS
+  // =============================
   const KEY = {
     phone: "digiy_phone",
-    sess: "digiy_loc_session" // { phone, token, exp }
+    sess:  "digiy_loc_pro_session" // { phone, exp }
   };
 
+  // =============================
+  // DOM
+  // =============================
   const $ = (id)=>document.getElementById(id);
   const phoneEl = $("phone");
   const pinEl = $("pin");
@@ -156,7 +162,7 @@
   const btnClear = $("btnClear");
 
   // =============================
-  // UI
+  // UI helpers
   // =============================
   function setPill(type, text){
     pill.className = "pill " + (type || "");
@@ -165,7 +171,7 @@
   function setMsg(t){ msg.textContent = t || ""; }
 
   // =============================
-  // UTILS
+  // Utils
   // =============================
   function normPhone(p){
     p = String(p||"").trim().replace(/\s+/g,"").replace(/[^\d+]/g,"");
@@ -194,17 +200,16 @@
   function getSession(){
     try{
       const s = JSON.parse(localStorage.getItem(KEY.sess)||"null");
-      if(!s?.token || !s?.phone || !s?.exp) return null;
+      if(!s?.phone || !s?.exp) return null;
       if(Date.now() > Number(s.exp)) return null;
       return s;
     }catch(_){ return null; }
   }
 
-  function setSession({ phone, token, exp_ms }){
+  function setSession({ phone, ttl_ms }){
     const obj = {
       phone: normPhone(phone),
-      token: String(token),
-      exp: Date.now() + Number(exp_ms || 0)
+      exp: Date.now() + Number(ttl_ms || (8*60*60*1000)) // 8h
     };
     localStorage.setItem(KEY.sess, JSON.stringify(obj));
     savePhone(obj.phone);
@@ -237,14 +242,15 @@
   }
 
   // =============================
-  // SECURITY (small anti-bruteforce UI)
+  // Anti-bruteforce UI
   // =============================
   let tries = 0;
   let lockUntil = 0;
+
   function isLocked(){
     return Date.now() < lockUntil;
   }
-  function lockShort(){
+  function onBadTry(){
     tries += 1;
     if(tries >= 5){
       lockUntil = Date.now() + 30_000; // 30s
@@ -255,29 +261,17 @@
   }
 
   // =============================
-  // FLOW
+  // Auto-login if session exists
   // =============================
   async function alreadyLoggedIn(){
     const sess = getSession();
     if(!sess) return false;
 
-    setPill("warn", "État: vérif session…");
-    setMsg("Session trouvée, vérification…");
+    setPill("warn", "État: session trouvée…");
+    setMsg("Session trouvée, contrôle abonnement…");
 
-    const ok = await rpc("digiy_loc_session_validate", {
-      p_phone: sess.phone,
-      p_token: sess.token
-    }).catch(()=>false);
-
-    if(!ok){
-      try{ localStorage.removeItem(KEY.sess); }catch(_){}
-      setPill("warn", "État: PIN requis");
-      setMsg("");
-      return false;
-    }
-
-    // session OK -> check subscription
-    const active = await rpc("is_module_active", { p_phone: sess.phone, p_module: MODULE }).catch(()=>false);
+    const active = await rpc("is_module_active", { p_phone: sess.phone, p_module: MODULE })
+      .catch(()=>false);
 
     if(!active){
       setPill("warn", "État: abonnement inactif");
@@ -287,11 +281,14 @@
     }
 
     setPill("ok", "État: ✅ OK");
-    setMsg("Session OK. Redirection…");
+    setMsg("OK ✅ Redirection…");
     location.replace(DASHBOARD_URL);
     return true;
   }
 
+  // =============================
+  // Login flow (PIN + subscription)
+  // =============================
   async function login(){
     if(isLocked()){
       const left = Math.ceil((lockUntil - Date.now())/1000);
@@ -308,50 +305,44 @@
 
     btnLogin.disabled = true;
     setPill("warn", "État: vérification…");
-    setMsg("Vérification PIN…");
+    setMsg("Vérification accès…");
 
     try{
-      // 1) verify PIN (SERVER)
-      const v = await rpc("digiy_access_pin_verify", {
+      // ✅ RPC EXISTANTE CHEZ TOI (d'après ta liste)
+      const res = await rpc("verify_access_pin", {
         p_phone: phone,
         p_pin: pin,
         p_module: MODULE
       });
 
-      if(!v || v.ok !== true){
-        const locked = lockShort();
+      // verify_access_pin retourne JSON (chez toi) => on accepte plusieurs formats
+      const ok =
+        (res === true) ||
+        (res && typeof res === "object" && (res.ok === true || res.allowed === true || res.valid === true));
+
+      if(!ok){
+        const locked = onBadTry();
         setPill("bad", "État: ❌ PIN incorrect");
         setMsg(locked ? "PIN incorrect. Pause 30s (sécurité)." : "PIN incorrect. Réessaie.");
         return;
       }
 
-      // 2) create short session token (SERVER)
-      setMsg("PIN OK ✅ Création session…");
-      const s = await rpc("digiy_loc_session_create", {
-        p_phone: phone,
-        p_user_agent: (navigator.userAgent || null)
-      });
+      setMsg("PIN OK ✅ Vérification abonnement LOC…");
 
-      if(!s || s.ok !== true || !s.token){
-        setPill("bad", "État: ❌ session refusée");
-        setMsg("Session non créée. Réessaie.");
-        return;
-      }
-
-      setSession({ phone: s.phone || phone, token: s.token, exp_ms: s.exp_ms || (12*60*60*1000) });
-
-      // 3) subscription
-      setMsg("Session OK ✅ Vérification abonnement LOC…");
-      const active = await rpc("is_module_active", { p_phone: (s.phone || phone), p_module: MODULE }).catch(()=>false);
+      // ✅ check abonnement
+      const active = await rpc("is_module_active", { p_phone: phone, p_module: MODULE })
+        .catch(()=>false);
 
       if(!active){
         setPill("warn", "État: abonnement inactif");
         setMsg("Abonnement LOC inactif → redirection paiement…");
-        location.replace(withQuery(PAY_URL, { module: MODULE, phone: (s.phone || phone), from: location.href }));
+        location.replace(withQuery(PAY_URL, { module: MODULE, phone, from: location.href }));
         return;
       }
 
-      // 4) go
+      // ✅ Session locale 8h
+      setSession({ phone, ttl_ms: 8*60*60*1000 });
+
       setPill("ok", "État: ✅ OK");
       setMsg("Accès accordé ✅ Redirection…");
       setTimeout(()=>location.replace(DASHBOARD_URL), 250);
@@ -366,12 +357,11 @@
   }
 
   // =============================
-  // EVENTS
+  // Events
   // =============================
   btnLogin.addEventListener("click", ()=>login());
   btnClear.addEventListener("click", clearAll);
 
-  // Enter key
   [phoneEl, pinEl].forEach(el=>{
     el.addEventListener("keydown", (e)=>{
       if(e.key === "Enter") login();
@@ -379,16 +369,14 @@
   });
 
   // =============================
-  // INIT
+  // Init
   // =============================
   phoneEl.value = loadPhone();
   setPill("warn", "État: PIN requis");
   setMsg("");
 
-  // Auto-redirect if already logged in
   alreadyLoggedIn().catch(()=>{});
 })();
 </script>
 </body>
 </html>
-
