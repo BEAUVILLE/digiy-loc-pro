@@ -13,16 +13,22 @@
       --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
       --radius:18px;
     }
+    *{box-sizing:border-box}
     body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
     .wrap{ max-width:860px; margin:0 auto; padding:16px; }
     .card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px; }
     .row{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
     .muted{ color:var(--muted); }
-    .btn{ border:1px solid var(--line); background:transparent; color:var(--text); padding:10px 12px; border-radius:14px; cursor:pointer; font-weight:900; }
+    .btn{
+      border:1px solid var(--line); background:transparent; color:var(--text);
+      padding:10px 12px; border-radius:14px; cursor:pointer; font-weight:900;
+    }
     .btn.ok{ border-color:rgba(34,197,94,.6); }
     .pill{ display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border:1px solid var(--line); border-radius:999px; }
     .bad{ color:var(--bad); font-weight:900; }
+    .ok{ color:var(--ok); font-weight:900; }
     .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    pre{ margin:10px 0 0; white-space:pre-wrap; word-break:break-word; }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -37,9 +43,10 @@
           <div style="font-weight:900; font-size:18px;">DIGIY LOC PRO • Planning</div>
           <div class="muted" id="sub">🧭 Vérification accès LOC…</div>
         </div>
+
         <div class="row">
           <span class="pill mono" id="pillSlug">slug: —</span>
-          <span class="pill">module: <span class="mono">loc</span></span>
+          <span class="pill">module: <span class="mono" id="pillModule">LOC</span></span>
           <button class="btn" id="btnLogout">Déconnexion</button>
           <button class="btn ok" id="btnGoLogin">Retour login</button>
         </div>
@@ -49,69 +56,90 @@
     <div style="height:12px;"></div>
 
     <div class="card">
-      <div style="font-weight:900;">État</div>
-      <pre id="state" class="muted" style="white-space:pre-wrap;margin:10px 0 0;"></pre>
+      <div style="font-weight:900;">État (debug)</div>
+      <pre id="state" class="muted"></pre>
     </div>
   </div>
 
   <script>
     (function(){
-      const MODULE = "loc";
+      const MODULE = "LOC"; // ✅ IMPORTANT: MAJUSCULE (align DB/RPC)
+      const PAY_URL = "https://beauville.github.io/commencer-a-payer/"; // ✅ explicite
+
       const $ = (id)=>document.getElementById(id);
 
-      function setSub(text, isBad){
+      function setSub(text, tone){
         $("sub").textContent = text;
-        $("sub").className = isBad ? "bad" : "muted";
+        $("sub").className = tone || "muted";
       }
       function dump(obj){
         $("state").textContent = JSON.stringify(obj, null, 2);
       }
-
-      function goLogin(){
+      function goLogin(replace=true){
         const u = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug("./login.html") : "./login.html");
-        location.replace(u);
+        replace ? location.replace(u) : (location.href = u);
       }
 
-      $("btnGoLogin").onclick = ()=> {
-        const u = (window.DIGIY_GUARD?.withSlug ? window.DIGIY_GUARD.withSlug("./login.html") : "./login.html");
-        location.href = u;
-      };
+      $("btnGoLogin").onclick = ()=> goLogin(false);
 
       $("btnLogout").onclick = ()=>{
         try{ window.DIGIY_GUARD?.clearSession?.(); }catch(_){}
-        goLogin();
+        goLogin(true);
       };
 
-      if (!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.boot !== "function") {
-        setSub("DIGIY_GUARD introuvable (guard.js non chargé / mauvais objet).", true);
+      // Guard chargé ?
+      if(!window.DIGIY_GUARD || typeof window.DIGIY_GUARD.boot !== "function"){
+        setSub("❌ Guard absent (guard.js non chargé / mauvais objet).", "bad");
         dump({
           guardFound: !!window.DIGIY_GUARD,
-          hint: "Vérifie ./guard.js et l'ordre des scripts.",
+          hint: "Vérifie ./guard.js et l'ordre des scripts (supabase-js puis guard.js).",
           here: location.href
         });
         return;
       }
 
+      // Slug UI
       const slug = window.DIGIY_GUARD.getSlug ? window.DIGIY_GUARD.getSlug() : "";
       $("pillSlug").textContent = "slug: " + (slug || "—");
+      $("pillModule").textContent = MODULE;
 
-      window.DIGIY_GUARD.boot({
-        module: MODULE,
-        dashboard: "./planning.html",
-        login: "./login.html",
-        requireSlug: true,
-        checkSubscription: true
-      }).then(()=>{
-        setSub("✅ Accès OK. Planning prêt.", false);
-        dump({
-          slug,
-          session: window.DIGIY_GUARD.getSession ? window.DIGIY_GUARD.getSession() : null
-        });
-      }).catch((e)=>{
-        setSub("Erreur guard → retour login", true);
-        dump({ error: String(e?.message || e) });
-        goLogin();
+      // Snapshot avant boot
+      dump({
+        here: location.href,
+        slug,
+        session_before: window.DIGIY_GUARD.getSession ? window.DIGIY_GUARD.getSession() : null
       });
+
+      // ✅ Boot (ne retourne pas une Promise dans ton guard.js)
+      try{
+        window.DIGIY_GUARD.boot({
+          module: MODULE,
+          dashboard: "./planning.html",
+          login: "./login.html",
+          pay: PAY_URL,
+          requireSlug: true,
+          checkSubscription: true
+        });
+
+        // Si on reste sur la page, c'est que le guard n'a pas redirigé (session ok + abo ok)
+        setSub("✅ Guard lancé. Si tu restes ici → soit actif, soit page en cours de chargement.", "ok");
+
+        // Snapshot après un petit délai (utile si le guard fait des RPC)
+        setTimeout(()=>{
+          dump({
+            here: location.href,
+            slug,
+            session_after: window.DIGIY_GUARD.getSession ? window.DIGIY_GUARD.getSession() : null,
+            phone: window.DIGIY_GUARD.getPhone ? window.DIGIY_GUARD.getPhone() : null
+          });
+        }, 600);
+
+      }catch(e){
+        console.error(e);
+        setSub("❌ Erreur guard → retour login", "bad");
+        dump({ error: String(e?.message || e) });
+        goLogin(true);
+      }
     })();
   </script>
 </body>
