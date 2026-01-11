@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY LOC • PRO — Aujourd’hui</title>
+  <meta name="theme-color" content="#16a34a"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#061b14; --card:#0b2a1f; --card2:#0f3427; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.72);
+      --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --gold:#facc15;
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(1200px 800px at 20% 0%, #0f3a2a 0%, var(--bg) 55%);
+      color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:16px;}
+    .wrap{max-width:1050px;margin:0 auto;display:grid;gap:14px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{display:flex;flex-direction:column}
+    .brand b{font-size:18px;letter-spacing:.2px}
+    .brand small{color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);
+      background:rgba(11,42,31,.75);border-radius:999px;color:var(--text)}
+    .grid{display:grid;gap:12px}
+    @media(min-width:900px){ .grid{grid-template-columns:360px 1fr} }
+    .card{background:rgba(11,42,31,.78);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+    .card h3{margin:0 0 10px 0;font-size:14px;color:var(--muted);font-weight:650;letter-spacing:.3px}
+    .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .kpi{background:rgba(15,52,39,.6);border:1px solid var(--line);border-radius:16px;padding:12px}
+    .kpi b{font-size:22px}
+    .kpi span{display:block;color:var(--muted);margin-top:6px;font-size:12px}
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .btn{cursor:pointer;border:1px solid var(--line);background:rgba(15,52,39,.6);
+      color:var(--text);padding:10px 12px;border-radius:14px;font-weight:700}
+    .btn:hover{border-color:rgba(250,204,21,.45)}
+    .btn.primary{background:linear-gradient(135deg,#16a34a,#0ea5e9);border-color:rgba(255,255,255,.18)}
+    .btn.ghost{background:transparent}
+    .list{display:grid;gap:10px}
+    .item{padding:12px;border-radius:16px;border:1px solid var(--line);background:rgba(15,52,39,.55);cursor:pointer}
+    .item:hover{border-color:rgba(250,204,21,.35)}
+    .item .top{display:flex;justify-content:space-between;gap:10px}
+    .tag{font-size:12px;color:var(--muted)}
+    .chip{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(6,27,20,.55)}
+    .chip.ok{border-color:rgba(34,197,94,.45);color:#bff7cf}
+    .chip.warn{border-color:rgba(245,158,11,.45);color:#ffe2ad}
+    .chip.bad{border-color:rgba(239,68,68,.45);color:#ffb4b4}
+    .detail{display:grid;gap:10px}
+    .muted{color:var(--muted)}
+    input,select{width:100%;padding:12px;border-radius:14px;border:1px solid var(--line);
+      background:rgba(6,27,20,.45);color:var(--text);outline:none}
+    .two{display:grid;gap:10px}
+    @media(min-width:900px){ .two{grid-template-columns:1fr 1fr} }
+    .sep{height:1px;background:var(--line);margin:8px 0}
+    .toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.18);padding:10px 12px;border-radius:14px;display:none}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <b>DIGIY LOC • PRO</b>
+      <small>Vue “Aujourd’hui” + messages WhatsApp (facultatif)</small>
+    </div>
+    <div class="pill">
+      <span>🏷️ Business</span>
+      <b id="bizLabel">—</b>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="two">
+      <div>
+        <label class="muted">Business code</label>
+        <input id="business_code" placeholder="ex: BEAUVILLE" autocomplete="off"/>
+      </div>
+      <div>
+        <label class="muted">Fenêtre “à venir”</label>
+        <select id="windowDays">
+          <option value="7">7 jours</option>
+          <option value="14">14 jours</option>
+          <option value="30">30 jours</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn primary" id="btnLoad">🔄 Charger</button>
+      <button class="btn ghost" id="btnToday">📅 Aujourd’hui</button>
+    </div>
+    <div class="muted" style="margin-top:10px;font-size:12px">
+      DIGIY ne lit jamais tes messages. Il note seulement le geste (date/heure).
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>AUJOURD’HUI</h3>
+      <div class="kpis">
+        <div class="kpi"><b id="kArr">0</b><span>🟢 Arrivées</span></div>
+        <div class="kpi"><b id="kDep">0</b><span>🔵 Départs</span></div>
+        <div class="kpi"><b id="kOcc">0</b><span>🟡 Séjours en cours</span></div>
+        <div class="kpi"><b id="kSoon">0</b><span>⚪ À venir</span></div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="row">
+        <b>Réservations</b>
+        <span class="tag" id="countLabel">0</span>
+      </div>
+      <div class="list" id="list"></div>
+    </div>
+
+    <div class="card">
+      <h3>FICHE</h3>
+      <div id="empty" class="muted">Sélectionne une réservation à gauche.</div>
+
+      <div id="detail" class="detail" style="display:none">
+        <div class="row">
+          <div>
+            <div style="font-weight:800" id="dGuest">—</div>
+            <div class="muted" id="dDates">—</div>
+          </div>
+          <div class="chip" id="dStatus">—</div>
+        </div>
+
+        <div class="two">
+          <div class="card" style="padding:12px;background:rgba(15,52,39,.45)">
+            <div class="muted" style="font-size:12px">📞 Téléphone</div>
+            <div style="font-weight:800" id="dPhone">—</div>
+          </div>
+          <div class="card" style="padding:12px;background:rgba(15,52,39,.45)">
+            <div class="muted" style="font-size:12px">📧 Email</div>
+            <div style="font-weight:800" id="dEmail">—</div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:12px;background:rgba(15,52,39,.45)">
+          <div class="muted" style="font-size:12px">🏠 Logement</div>
+          <div style="font-weight:800" id="dLogement">—</div>
+          <div class="muted" style="font-size:12px;margin-top:6px" id="dTrack">—</div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <button class="btn" id="btnWelcome">💬 Message d’accueil</button>
+          <button class="btn" id="btnAfter">💬 Après séjour</button>
+          <button class="btn ghost" id="btnCopyPhone">📋 Copier tel</button>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <span class="chip ok" id="cWelcome">Accueil : —</span>
+          <span class="chip ok" id="cAfter">Après séjour : —</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================
+   SUPABASE
+========================= */
+const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZn lqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA".replace(/\s+/g,'');
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* =========================
+   TEMPLATES
+========================= */
+function tmplWelcome(res){
+  const name = (res.client_nom || "").trim();
+  const greet = name ? `Bonjour ${name},` : `Bonjour,`;
+  return [
+    `${greet} merci pour votre réservation 🙏`,
+    `Nous sommes ravis de vous accueillir à ${res.logement_nom || "la maison"}.`,
+    `Parking gratuit à proximité, accès très facile.`,
+    `N’hésitez pas si vous avez des questions.`
+  ].join("\n");
+}
+
+function tmplAfterStay(res){
+  return [
+    `Vos suggestions nous permettent de nous améliorer.`,
+    `Merci pour votre séjour.`,
+    `Au plaisir de vous recevoir à nouveau.`
+  ].join("\n");
+}
+
+/* =========================
+   HELPERS
+========================= */
+const $ = (id)=>document.getElementById(id);
+const toast = (msg)=>{
+  const el = $("toast");
+  el.textContent = msg;
+  el.style.display="block";
+  clearTimeout(window.__t);
+  window.__t = setTimeout(()=>el.style.display="none", 2200);
+};
+
+function todayYMD(){
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const d = String(now.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function addDaysYMD(ymd, days){
+  const [y,m,d] = ymd.split('-').map(Number);
+  const dt = new Date(Date.UTC(y,m-1,d));
+  dt.setUTCDate(dt.getUTCDate()+Number(days));
+  const yy=dt.getUTCFullYear(), mm=String(dt.getUTCMonth()+1).padStart(2,'0'), dd=String(dt.getUTCDate()).padStart(2,'0');
+  return `${yy}-${mm}-${dd}`;
+}
+
+function normalizePhone(p){
+  return (p||"").toString().replace(/[^0-9+]/g,'').trim();
+}
+
+function waLink(phone, text){
+  const p = normalizePhone(phone).replace(/^00/, '+');
+  const digits = p.startsWith('+') ? p.slice(1) : p;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+}
+
+function statusChip(status){
+  const t = (status||"").toLowerCase();
+  if(t.includes("cancel")) return {cls:"bad", label:"Annulée"};
+  if(t.includes("confirm")) return {cls:"ok", label:"Confirmée"};
+  if(t.includes("pend")) return {cls:"warn", label:"En attente"};
+  return {cls:"", label: status || "—"};
+}
+
+/* =========================
+   STATE
+========================= */
+let RES = [];
+let SELECTED = null;
+
+/* =========================
+   LOAD DATA
+========================= */
+async function loadReservations(){
+  const biz = $("business_code").value.trim();
+  if(!biz){ toast("Entre ton business_code"); return; }
+  $("bizLabel").textContent = biz;
+
+  const today = todayYMD();
+  const windowDays = parseInt($("windowDays").value || "7", 10);
+  const end = addDaysYMD(today, windowDays);
+
+  // Fenêtre: on récupère arrivées proche (pour la vue "Aujourd’hui + à venir")
+  const { data, error } = await db
+    .from("digiy_reservations")
+    .select(`
+      id, created_at, updated_at, business_code,
+      logement_nom, tracking_code,
+      client_nom, client_phone, client_email,
+      date_arrivee, date_depart,
+      nb_nuits, nb_personnes, montant_total, mode_paiement,
+      status, notes,
+      welcome_message_sent_at, afterstay_message_sent_at
+    `)
+    .eq("business_code", biz)
+    .gte("date_arrivee", addDaysYMD(today, -7))
+    .lte("date_arrivee", end)
+    .order("date_arrivee", {ascending:true});
+
+  if(error){ console.error(error); toast("Erreur chargement"); return; }
+  RES = data || [];
+  renderKPIs();
+  renderList();
+  toast("Chargé ✅");
+}
+
+function renderKPIs(){
+  const t = todayYMD();
+  const soonEnd = addDaysYMD(t, parseInt($("windowDays").value || "7", 10));
+
+  const arrivals = RES.filter(r=>String(r.date_arrivee)===t).length;
+  const deps = RES.filter(r=>String(r.date_depart)===t).length;
+
+  const occ = RES.filter(r=>{
+    const ci = String(r.date_arrivee), co = String(r.date_depart);
+    return ci <= t && co > t;
+  }).length;
+
+  const soon = RES.filter(r=>{
+    const ci = String(r.date_arrivee);
+    return ci > t && ci <= soonEnd;
+  }).length;
+
+  $("kArr").textContent = arrivals;
+  $("kDep").textContent = deps;
+  $("kOcc").textContent = occ;
+  $("kSoon").textContent = soon;
+}
+
+function renderList(){
+  const el = $("list");
+  el.innerHTML = "";
+  $("countLabel").textContent = `${RES.length}`;
+
+  RES.forEach(r=>{
+    const chip = statusChip(r.status);
+    const div = document.createElement("div");
+    div.className="item";
+    div.innerHTML = `
+      <div class="top">
+        <div>
+          <div style="font-weight:800">${(r.client_nom||"Client").toString()}</div>
+          <div class="tag">📅 ${r.date_arrivee} → ${r.date_depart} • 🏠 ${(r.logement_nom||"—")}</div>
+        </div>
+        <div class="chip ${chip.cls}">${chip.label}</div>
+      </div>
+      <div class="tag" style="margin-top:8px">
+        📞 ${normalizePhone(r.client_phone)||"—"} • Accueil: ${r.welcome_message_sent_at ? "✅" : "—"} • Après: ${r.afterstay_message_sent_at ? "✅" : "—"}
+      </div>
+    `;
+    div.onclick = ()=>selectReservation(r.id);
+    el.appendChild(div);
+  });
+}
+
+function selectReservation(id){
+  const r = RES.find(x=>x.id===id);
+  if(!r) return;
+  SELECTED = r;
+
+  $("empty").style.display="none";
+  $("detail").style.display="grid";
+
+  $("dGuest").textContent = r.client_nom || "Client";
+  $("dDates").textContent = `📅 ${r.date_arrivee} → ${r.date_depart}`;
+
+  const chip = statusChip(r.status);
+  $("dStatus").className = `chip ${chip.cls}`;
+  $("dStatus").textContent = chip.label;
+
+  $("dPhone").textContent = normalizePhone(r.client_phone) || "—";
+  $("dEmail").textContent = (r.client_email || "—");
+  $("dLogement").textContent = (r.logement_nom || "—");
+  $("dTrack").textContent = `Tracking: ${r.tracking_code || "—"} • ID: ${r.id}`;
+
+  $("cWelcome").textContent = `Accueil : ${r.welcome_message_sent_at ? new Date(r.welcome_message_sent_at).toLocaleString() : "—"}`;
+  $("cAfter").textContent = `Après séjour : ${r.afterstay_message_sent_at ? new Date(r.afterstay_message_sent_at).toLocaleString() : "—"}`;
+}
+
+async function markSent(kind){
+  if(!SELECTED) return;
+  const { error } = await db.rpc("digiy_loc_mark_message_sent", {
+    p_reservation_id: SELECTED.id,
+    p_kind: kind
+  });
+  if(error){ console.error(error); toast("Erreur update"); return; }
+
+  const field = kind==='welcome' ? 'welcome_message_sent_at' : 'afterstay_message_sent_at';
+  SELECTED[field] = new Date().toISOString();
+  const idx = RES.findIndex(x=>x.id===SELECTED.id);
+  if(idx>=0) RES[idx][field] = SELECTED[field];
+
+  selectReservation(SELECTED.id);
+  renderList();
+}
+
+$("btnWelcome").onclick = async ()=>{
+  if(!SELECTED){ toast("Sélectionne une réservation"); return; }
+  const text = tmplWelcome(SELECTED);
+  window.open(waLink(SELECTED.client_phone, text), "_blank");
+  await markSent('welcome');
+  toast("Accueil: WhatsApp + marqué ✅");
+};
+
+$("btnAfter").onclick = async ()=>{
+  if(!SELECTED){ toast("Sélectionne une réservation"); return; }
+  const text = tmplAfterStay(SELECTED);
+  window.open(waLink(SELECTED.client_phone, text), "_blank");
+  await markSent('afterstay');
+  toast("Après séjour: WhatsApp + marqué ✅");
+};
+
+$("btnCopyPhone").onclick = async ()=>{
+  if(!SELECTED) return;
+  const p = normalizePhone(SELECTED.client_phone);
+  try{ await navigator.clipboard.writeText(p); toast("Téléphone copié ✅"); }
+  catch{ toast("Copie impossible"); }
+};
+
+$("btnLoad").onclick = loadReservations;
+$("btnToday").onclick = ()=>{ renderKPIs(); toast("KPIs mis à jour"); };
+</script>
+</body>
+</html>
